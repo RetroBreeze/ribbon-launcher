@@ -104,15 +104,21 @@ fun GameCarousel(
                     label = "LabelAlpha"
                 )
 
-                Crossfade(
-                    targetState = pagerState.currentPage,
-                    label = "GameTitle"
-                ) { pageIndex ->
-                    Text(
-                        text = games[pageIndex].displayName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.alpha(labelAlpha)
-                    )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Crossfade(
+                        targetState = pagerState.currentPage,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "GameTitle"
+                    ) { pageIndex ->
+                        Text(
+                            text = games[pageIndex].displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.alpha(labelAlpha)
+                        )
+                    }
                 }
             }
         }
