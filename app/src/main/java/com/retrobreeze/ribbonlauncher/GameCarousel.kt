@@ -27,17 +27,18 @@ fun GameCarousel(
     val itemSpacing = 32.dp
     val itemSize = 150.dp
     val selectedScale = 1.25f
+    val maxPageWidth = itemSize * selectedScale
 
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp)
     ) {
-        val horizontalPadding = (maxWidth - itemSize) / 2
+        val horizontalPadding = (maxWidth - maxPageWidth) / 2
 
         HorizontalPager(
             state = pagerState,
-            pageSize = PageSize.Fixed(itemSize),
+            pageSize = PageSize.Fixed(maxPageWidth),
             pageSpacing = itemSpacing,
             contentPadding = PaddingValues(horizontal = horizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
@@ -54,20 +55,25 @@ fun GameCarousel(
             )
 
             Box(
-                modifier = Modifier.size(size),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                game.icon?.let { icon ->
-                    if (isIconLikelyCircular(icon)) {
-                        GameIconFancy(
-                            icon = icon,
-                            contentDesc = game.displayName
-                        )
-                    } else {
-                        GameIconSimple(
-                            icon = icon,
-                            contentDesc = game.displayName
-                        )
+                Box(
+                    modifier = Modifier.size(size),
+                    contentAlignment = Alignment.Center
+                ) {
+                    game.icon?.let { icon ->
+                        if (isIconLikelyCircular(icon)) {
+                            GameIconFancy(
+                                icon = icon,
+                                contentDesc = game.displayName
+                            )
+                        } else {
+                            GameIconSimple(
+                                icon = icon,
+                                contentDesc = game.displayName
+                            )
+                        }
                     }
                 }
             }
