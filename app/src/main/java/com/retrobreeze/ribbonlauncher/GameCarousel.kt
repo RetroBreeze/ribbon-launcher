@@ -1,6 +1,7 @@
 package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
