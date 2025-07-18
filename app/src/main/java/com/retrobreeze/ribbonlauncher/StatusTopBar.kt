@@ -1,14 +1,14 @@
 package com.retrobreeze.ribbonlauncher
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
+import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,12 +16,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BatteryFull
+import androidx.compose.material.icons.filled.Battery0Bar
+import androidx.compose.material.icons.filled.Battery1Bar
+import androidx.compose.material.icons.filled.Battery2Bar
+import androidx.compose.material.icons.filled.Battery3Bar
+import androidx.compose.material.icons.filled.Battery4Bar
+import androidx.compose.material.icons.filled.Battery5Bar
+import androidx.compose.material.icons.filled.Battery6Bar
+import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.BatteryUnknown
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BluetoothDisabled
+import androidx.compose.material.icons.filled.BluetoothSearching
+import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.SignalWifiOff
-import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.SignalWifi0Bar
+import androidx.compose.material.icons.filled.SignalWifi4Bar
+import androidx.compose.material.icons.filled.Wifi1Bar
+import androidx.compose.material.icons.filled.Wifi2Bar
+import androidx.compose.material.icons.filled.NetworkWifi3Bar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,96 +49,139 @@ import java.util.*
 fun StatusTopBar(modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
-    val isConnected by rememberNetworkConnection()
-    val isBluetoothOn by rememberBluetoothState()
-    val batteryLevel by rememberBatteryLevel()
+    val wifiLevel by rememberWifiSignalLevel()
+    val bluetoothState by rememberBluetoothState()
+    val batteryState by rememberBatteryStatus()
     val currentTime by rememberCurrentTime()
 
     Row(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .height(32.dp)
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.weight(1f))
         Text(
             text = currentTime,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.align(Alignment.CenterVertically)
         )
         Spacer(modifier = Modifier.weight(1f))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val networkIcon = if (isConnected) Icons.Filled.Wifi else Icons.Filled.SignalWifiOff
-            Icon(imageVector = networkIcon, contentDescription = "Network")
-            Spacer(modifier = Modifier.width(12.dp))
-            val btIcon = if (isBluetoothOn) Icons.Filled.Bluetooth else Icons.Filled.BluetoothDisabled
-            Icon(imageVector = btIcon, contentDescription = "Bluetooth")
-            Spacer(modifier = Modifier.width(12.dp))
-            val batteryIcon = if (batteryLevel > 10) Icons.Filled.BatteryFull else Icons.Filled.BatteryUnknown
-            Icon(imageVector = batteryIcon, contentDescription = "Battery")
+            Icon(
+                imageVector = wifiIcon(wifiLevel),
+                contentDescription = "Wi-Fi"
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = bluetoothIcon(bluetoothState),
+                contentDescription = "Bluetooth"
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = batteryIcon(batteryState.level, batteryState.charging),
+                contentDescription = "Battery"
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "${batteryState.level}%",
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }
 
-@Composable
-private fun rememberNetworkConnection(): State<Boolean> {
-    val context = LocalContext.current
-    val connectivityManager = remember {
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    }
-    val isConnected = remember { mutableStateOf(false) }
 
-    DisposableEffect(connectivityManager) {
-        val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                isConnected.value = true
-            }
-
-            override fun onLost(network: Network) {
-                val active = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-                isConnected.value = active?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-            }
-        }
-        val request = NetworkRequest.Builder().build()
-        connectivityManager.registerNetworkCallback(request, callback)
-        val active = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        isConnected.value = active?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-        onDispose {
-            connectivityManager.unregisterNetworkCallback(callback)
-        }
-    }
-    return isConnected
-}
+data class BluetoothState(val enabled: Boolean, val connected: Boolean)
 
 @Composable
-private fun rememberBluetoothState(): State<Boolean> {
+private fun rememberWifiSignalLevel(): State<Int> {
     val context = LocalContext.current
-    val bluetoothAdapter = remember { BluetoothAdapter.getDefaultAdapter() }
-    val isEnabled = remember { mutableStateOf(bluetoothAdapter?.isEnabled == true) }
+    val wifiManager = remember { context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager }
+    val level = remember { mutableStateOf(if (wifiManager.isWifiEnabled) WifiManager.calculateSignalLevel(wifiManager.connectionInfo.rssi, 5) else -1) }
 
-    DisposableEffect(context) {
+    DisposableEffect(wifiManager) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(c: Context?, intent: Intent?) {
-                if (intent?.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
-                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
-                    isEnabled.value = state == BluetoothAdapter.STATE_ON
+                if (!wifiManager.isWifiEnabled) {
+                    level.value = -1
+                } else {
+                    level.value = WifiManager.calculateSignalLevel(wifiManager.connectionInfo.rssi, 5)
                 }
             }
         }
-        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        val filter = IntentFilter().apply {
+            addAction(WifiManager.RSSI_CHANGED_ACTION)
+            addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION)
+            addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
+        }
+        context.registerReceiver(receiver, filter)
+        onDispose { context.unregisterReceiver(receiver) }
+    }
+    return level
+}
+
+@Composable
+private fun rememberBluetoothState(): State<BluetoothState> {
+    val context = LocalContext.current
+    val manager = remember { context.getSystemService(BluetoothManager::class.java) }
+    val state = remember {
+        mutableStateOf(
+            BluetoothState(
+                enabled = manager.adapter?.isEnabled == true,
+                connected = false
+            )
+        )
+    }
+
+    DisposableEffect(manager) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(c: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                        val s = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                        if (s != BluetoothAdapter.STATE_ON) {
+                            state.value = BluetoothState(false, false)
+                        } else {
+                            val connected = manager.getConnectedDevices(BluetoothProfile.GATT).isNotEmpty() ||
+                                manager.getConnectedDevices(BluetoothProfile.HEADSET).isNotEmpty() ||
+                                manager.getConnectedDevices(BluetoothProfile.A2DP).isNotEmpty()
+                            state.value = BluetoothState(true, connected)
+                        }
+                    }
+                    BluetoothDevice.ACTION_ACL_CONNECTED -> {
+                        state.value = state.value.copy(connected = true)
+                    }
+                    BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
+                        val connected = manager.getConnectedDevices(BluetoothProfile.GATT).isNotEmpty() ||
+                            manager.getConnectedDevices(BluetoothProfile.HEADSET).isNotEmpty() ||
+                            manager.getConnectedDevices(BluetoothProfile.A2DP).isNotEmpty()
+                        state.value = state.value.copy(connected = connected)
+                    }
+                }
+            }
+        }
+        val filter = IntentFilter().apply {
+            addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+            addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+            addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+        }
         context.registerReceiver(receiver, filter)
         onDispose {
             context.unregisterReceiver(receiver)
         }
     }
-    return isEnabled
+    return state
 }
 
+data class BatteryState(val level: Int, val charging: Boolean)
+
 @Composable
-private fun rememberBatteryLevel(): State<Int> {
+private fun rememberBatteryStatus(): State<BatteryState> {
     val context = LocalContext.current
-    val battery = remember { mutableStateOf(100) }
+    val state = remember { mutableStateOf(BatteryState(100, false)) }
 
     DisposableEffect(context) {
         val receiver = object : BroadcastReceiver() {
@@ -133,19 +189,45 @@ private fun rememberBatteryLevel(): State<Int> {
                 if (intent?.action == Intent.ACTION_BATTERY_CHANGED) {
                     val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
                     val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-                    if (level >= 0 && scale > 0) {
-                        battery.value = (level * 100f / scale).toInt()
-                    }
+                    val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+                    val pct = if (level >= 0 && scale > 0) (level * 100f / scale).toInt() else state.value.level
+                    val charging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+                    state.value = BatteryState(pct, charging)
                 }
             }
         }
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         context.registerReceiver(receiver, filter)
-        onDispose {
-            context.unregisterReceiver(receiver)
-        }
+        onDispose { context.unregisterReceiver(receiver) }
     }
-    return battery
+    return state
+}
+
+private fun wifiIcon(level: Int) = when {
+    level < 0 -> Icons.Filled.SignalWifiOff
+    level == 0 -> Icons.Filled.SignalWifi0Bar
+    level == 1 -> Icons.Filled.Wifi1Bar
+    level == 2 -> Icons.Filled.Wifi2Bar
+    level == 3 -> Icons.Filled.NetworkWifi3Bar
+    else -> Icons.Filled.SignalWifi4Bar
+}
+
+private fun bluetoothIcon(state: BluetoothState) = when {
+    !state.enabled -> Icons.Filled.BluetoothDisabled
+    state.connected -> Icons.Filled.BluetoothConnected
+    else -> Icons.Filled.BluetoothSearching
+}
+
+private fun batteryIcon(level: Int, charging: Boolean) = when {
+    charging -> Icons.Filled.BatteryChargingFull
+    level >= 85 -> Icons.Filled.Battery6Bar
+    level >= 70 -> Icons.Filled.Battery5Bar
+    level >= 55 -> Icons.Filled.Battery4Bar
+    level >= 40 -> Icons.Filled.Battery3Bar
+    level >= 25 -> Icons.Filled.Battery2Bar
+    level >= 10 -> Icons.Filled.Battery1Bar
+    level >= 0 -> Icons.Filled.Battery0Bar
+    else -> Icons.Filled.BatteryUnknown
 }
 
 @Composable
