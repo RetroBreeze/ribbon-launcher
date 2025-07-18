@@ -1,8 +1,6 @@
 package com.retrobreeze.ribbonlauncher
 
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -10,7 +8,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.retrobreeze.ribbonlauncher.model.GameEntry
@@ -26,8 +23,9 @@ fun GameCarousel(
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
-    val itemSpacing = 16.dp
+    val itemSpacing = 32.dp
     val itemSize = 150.dp
+    val selectedScale = 1.25f
 
     // Detect center item
     val centerItemIndex by remember {
@@ -37,6 +35,21 @@ fun GameCarousel(
             layoutInfo.visibleItemsInfo.minByOrNull { item ->
                 abs((item.offset + item.size / 2) - viewportCenter)
             }?.index ?: 0
+        }
+    }
+
+    LaunchedEffect(listState.isScrollInProgress, centerItemIndex) {
+        if (!listState.isScrollInProgress) {
+            val layoutInfo = listState.layoutInfo
+            val itemInfo = layoutInfo.visibleItemsInfo
+                .firstOrNull { it.index == centerItemIndex }
+                ?: return@LaunchedEffect
+            val viewportCenter = (layoutInfo.viewportEndOffset + layoutInfo.viewportStartOffset) / 2
+            val itemCenter = itemInfo.offset + itemInfo.size / 2
+            val diff = itemCenter - viewportCenter
+            if (diff != 0) {
+                listState.animateScrollBy(diff.toFloat())
+            }
         }
     }
 
@@ -51,19 +64,13 @@ fun GameCarousel(
     ) {
         itemsIndexed(games) { index, game ->
             val isSelected = index == centerItemIndex
-            val scale by animateFloatAsState(
-                targetValue = if (isSelected) 1.25f else 1f,
-                label = "ScaleAnimation"
+            val size by animateDpAsState(
+                targetValue = if (isSelected) itemSize * selectedScale else itemSize,
+                label = "SizeAnimation"
             )
 
             Box(
-                modifier = Modifier
-                    .size(itemSize) // Reserve consistent layout space
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
-                    },
+                modifier = Modifier.size(size),
                 contentAlignment = Alignment.Center
             ) {
                 game.icon?.let { icon ->
