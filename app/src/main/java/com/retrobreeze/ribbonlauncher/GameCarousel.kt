@@ -1,6 +1,7 @@
 package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
@@ -8,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.alpha
+import androidx.compose.material3.Text
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconFancy
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconSimple
@@ -51,9 +54,15 @@ fun GameCarousel(
                 label = "SizeAnimation"
             )
 
-            Box(
+            val labelAlpha by animateFloatAsState(
+                targetValue = if (isSelected) 1f else 0f,
+                label = "LabelAlpha"
+            )
+
+            Column(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Box(
                     modifier = Modifier
@@ -83,6 +92,13 @@ fun GameCarousel(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = game.displayName,
+                    modifier = Modifier.alpha(labelAlpha)
+                )
             }
         }
     }
