@@ -63,14 +63,23 @@ fun GameCarousel(
                 Box(
                     modifier = Modifier
                         .size(size)
-                        .clickable {
-                            if (isSelected) {
-                                onLaunch(game)
-                            } else {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(page)
-                                }
-                            }
+.clickable {
+
+    if (isSelected) {
+
+        onLaunch(game)
+
+    } else {
+
+        coroutineScope.launch {
+
+            pagerState.animateScrollToPage(page)
+
+        }
+
+    }
+
+}
                         },
                     contentAlignment = Alignment.Center
                 ) {
