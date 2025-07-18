@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,40 +57,52 @@ fun StatusTopBar(modifier: Modifier = Modifier) {
     val batteryState by rememberBatteryStatus()
     val currentTime by rememberCurrentTime()
 
-    Row(
+    val isDark = isSystemInDarkTheme()
+    val gradient = remember(isDark) {
+        val tint = if (isDark) Color.White else Color.Black
+        Brush.verticalGradient(
+            colors = listOf(Color.Transparent, tint.copy(alpha = if (isDark) 0.12f else 0.18f))
+        )
+    }
+
+    Box(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant)
             .fillMaxWidth()
             .height(32.dp)
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .background(gradient)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
-        Box(modifier = Modifier.weight(1f))
         Text(
             text = currentTime,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.Center)
         )
-        Spacer(modifier = Modifier.weight(1f))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
                 imageVector = wifiIcon(wifiLevel),
-                contentDescription = "Wi-Fi"
+                contentDescription = "Wi-Fi",
+                modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
                 imageVector = bluetoothIcon(bluetoothState),
-                contentDescription = "Bluetooth"
+                contentDescription = "Bluetooth",
+                modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
                 imageVector = batteryIcon(batteryState.level, batteryState.charging),
-                contentDescription = "Battery"
+                contentDescription = "Battery",
+                modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "${batteryState.level}%",
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
         }
     }
