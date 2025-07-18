@@ -1,5 +1,6 @@
 package com.retrobreeze.ribbonlauncher
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -10,12 +11,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.alpha
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.tooling.preview.Preview
+import android.graphics.drawable.ColorDrawable
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconFancy
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconSimple
 import com.retrobreeze.ribbonlauncher.util.isIconLikelyCircular
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun GameCarousel(
@@ -29,24 +36,30 @@ fun GameCarousel(
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
 
-    BoxWithConstraints(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp)
+            .padding(horizontal = 32.dp),
+        contentAlignment = Alignment.Center
     ) {
-        val horizontalPadding = (maxWidth - maxPageWidth) / 2
+        BoxWithConstraints {
+            val horizontalPadding = (maxWidth - maxPageWidth) / 2
 
-        HorizontalPager(
-            state = pagerState,
-            pageSize = PageSize.Fixed(maxPageWidth),
-            pageSpacing = itemSpacing,
-            contentPadding = PaddingValues(horizontal = horizontalPadding),
-            verticalAlignment = Alignment.CenterVertically,
-            flingBehavior = PagerDefaults.flingBehavior(
-                state = pagerState,
-                pagerSnapDistance = PagerSnapDistance.atMost(1)
-            )
-        ) { page ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    pageSize = PageSize.Fixed(maxPageWidth),
+                    pageSpacing = itemSpacing,
+                    contentPadding = PaddingValues(horizontal = horizontalPadding),
+                    verticalAlignment = Alignment.CenterVertically,
+                    flingBehavior = PagerDefaults.flingBehavior(
+                        state = pagerState,
+                        pagerSnapDistance = PagerSnapDistance.atMost(1)
+                    )
+                ) { page ->
             val game = games[page]
             val isSelected = pagerState.currentPage == page
             val size by animateDpAsState(
@@ -54,16 +67,6 @@ fun GameCarousel(
                 label = "SizeAnimation"
             )
 
-            val labelAlpha by animateFloatAsState(
-                targetValue = if (isSelected) 1f else 0f,
-                label = "LabelAlpha"
-            )
-
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
                 Box(
                     modifier = Modifier
                         .size(size)
@@ -92,14 +95,39 @@ fun GameCarousel(
                         }
                     }
                 }
+            }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Text(
-                    text = game.displayName,
-                    modifier = Modifier.alpha(labelAlpha)
+                val labelAlpha by animateFloatAsState(
+                    targetValue = if (pagerState.currentPageOffsetFraction == 0f) 1f else 0f,
+                    label = "LabelAlpha"
                 )
+
+                Crossfade(
+                    targetState = pagerState.currentPage,
+                    label = "GameTitle"
+                ) { pageIndex ->
+                    Text(
+                        text = games[pageIndex].displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.alpha(labelAlpha)
+                    )
+                }
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun GameCarouselPreview() {
+    val sampleGames = List(3) { index ->
+        GameEntry(
+            packageName = "com.example.$index",
+            displayName = "Game $index",
+            icon = ColorDrawable(Color.Gray.toArgb())
+        )
+    }
+    GameCarousel(games = sampleGames, onLaunch = {})
 }
