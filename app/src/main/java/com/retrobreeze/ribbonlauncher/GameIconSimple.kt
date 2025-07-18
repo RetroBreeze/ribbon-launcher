@@ -22,7 +22,7 @@ fun GameIconSimple(icon: Drawable, contentDesc: String) {
         contentDescription = contentDesc,
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(20.dp)),
+            .clip(RoundedCornerShape(12.dp)),
         contentScale = ContentScale.Crop
     )
 }

@@ -16,7 +16,6 @@ import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconFancy
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconSimple
 import com.retrobreeze.ribbonlauncher.util.isIconLikelyCircular
-import kotlin.math.abs
 
 @Composable
 fun GameCarousel(

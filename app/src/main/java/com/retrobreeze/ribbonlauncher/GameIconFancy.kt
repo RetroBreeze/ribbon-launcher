@@ -26,8 +26,8 @@ fun GameIconFancy(icon: Drawable, contentDesc: String) {
 
     Box(
         modifier = Modifier
-            .size(150.dp)
-            .clip(RoundedCornerShape(20.dp))
+            .fillMaxSize()
+            .clip(RoundedCornerShape(12.dp))
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
@@ -51,8 +51,8 @@ fun GameIconFancy(icon: Drawable, contentDesc: String) {
             painter = painter,
             contentDescription = contentDesc,
             modifier = Modifier
-                .size(140.dp)
-                .clip(RoundedCornerShape(20.dp)),
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp)),
             contentScale = ContentScale.Fit
         )
     }
