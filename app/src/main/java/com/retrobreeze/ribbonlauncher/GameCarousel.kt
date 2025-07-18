@@ -2,15 +2,17 @@ package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconFancy
@@ -22,8 +24,8 @@ fun GameCarousel(
     games: List<GameEntry>,
     onLaunch: (GameEntry) -> Unit
 ) {
-    val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = 0) { games.size }
+    val coroutineScope = rememberCoroutineScope()
     val itemSpacing = 32.dp
     val itemSize = 150.dp
     val selectedScale = 1.25f
@@ -59,7 +61,17 @@ fun GameCarousel(
                 contentAlignment = Alignment.Center
             ) {
                 Box(
-                    modifier = Modifier.size(size),
+                    modifier = Modifier
+                        .size(size)
+                        .clickable {
+                            if (isSelected) {
+                                onLaunch(game)
+                            } else {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(page)
+                                }
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     game.icon?.let { icon ->
