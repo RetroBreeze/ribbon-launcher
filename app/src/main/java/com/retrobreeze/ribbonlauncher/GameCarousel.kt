@@ -60,7 +60,7 @@ fun GameCarousel(
                 Box(
                     modifier = Modifier
                         .size(size)
-                        .clickable(enabled = isSelected) {
+                        .clickable {
                             onLaunch(game)
                         },
                     contentAlignment = Alignment.Center
