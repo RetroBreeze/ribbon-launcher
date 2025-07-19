@@ -1,6 +1,6 @@
 package com.retrobreeze.ribbonlauncher
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibility as RootAnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.animateDpAsState
@@ -104,8 +104,8 @@ fun GameCarousel(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    games.forEachIndexed { index, game ->
-                        AnimatedVisibility(
+                    for ((index, game) in games.withIndex()) {
+                        RootAnimatedVisibility(
                             visible = pagerState.currentPage == index,
                             enter = fadeIn(),
                             exit = fadeOut()
