@@ -1,8 +1,6 @@
 package com.retrobreeze.ribbonlauncher
 
-import androidx.compose.animation.AnimatedVisibility as RootAnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -104,19 +102,13 @@ fun GameCarousel(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    for ((index, game) in games.withIndex()) {
-                        RootAnimatedVisibility(
-                            visible = pagerState.currentPage == index,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Text(
-                                text = game.displayName,
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                    Crossfade(targetState = pagerState.currentPage, label = "GameLabel") { page ->
+                        Text(
+                            text = games[page].displayName,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
