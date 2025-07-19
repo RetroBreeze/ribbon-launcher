@@ -2,7 +2,6 @@ package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
@@ -10,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.alpha
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
@@ -99,11 +97,6 @@ fun GameCarousel(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                val labelAlpha by animateFloatAsState(
-                    targetValue = if (pagerState.currentPageOffsetFraction == 0f) 1f else 0f,
-                    label = "LabelAlpha"
-                )
-
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
@@ -115,8 +108,7 @@ fun GameCarousel(
                     ) { pageIndex ->
                         Text(
                             text = games[pageIndex].displayName,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.alpha(labelAlpha)
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }
