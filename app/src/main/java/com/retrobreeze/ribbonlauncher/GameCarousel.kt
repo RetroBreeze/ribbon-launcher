@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import android.graphics.drawable.ColorDrawable
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ui.components.GameIconFancy
@@ -108,7 +109,9 @@ fun GameCarousel(
                     ) { pageIndex ->
                         Text(
                             text = games[pageIndex].displayName,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
