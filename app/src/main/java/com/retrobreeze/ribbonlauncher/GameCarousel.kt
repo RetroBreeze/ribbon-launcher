@@ -96,7 +96,7 @@ fun GameCarousel(
                 }
             }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Box(
                     modifier = Modifier.fillMaxWidth(),
@@ -109,7 +109,7 @@ fun GameCarousel(
                     ) { pageIndex ->
                         Text(
                             text = games[pageIndex].displayName,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
