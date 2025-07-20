@@ -1,14 +1,14 @@
 package com.retrobreeze.ribbonlauncher.ui.components
 
 import android.graphics.drawable.Drawable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.retrobreeze.ribbonlauncher.util.isIconLikelyCircular
@@ -46,6 +46,17 @@ fun GameIconWithReflection(
                 .weight(reflectionRatio)
                 .graphicsLayer {
                     scaleY = -1f
+                    clip = true
+                }
+                .drawWithCache {
+                    val gradient = Brush.verticalGradient(
+                        0f to Color.Black.copy(alpha = 0.4f),
+                        1f to Color.Transparent
+                    )
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(gradient, blendMode = androidx.compose.ui.graphics.BlendMode.DstIn)
+                    }
                 }
         ) {
             if (isCircular) {
@@ -53,16 +64,6 @@ fun GameIconWithReflection(
             } else {
                 GameIconSimple(icon = icon, contentDesc = "")
             }
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color.Black.copy(alpha = 0.4f),
-                            1f to Color.Transparent
-                        )
-                    )
-            )
         }
         Spacer(modifier = Modifier.height(4.dp))
     }
