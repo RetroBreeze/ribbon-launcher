@@ -74,24 +74,29 @@ fun GameCarousel(
                     )
 
                     Box(
-                        modifier = Modifier
-                            .size(size)
-                            .clickable {
-                                if (isSelected) {
-                                    onLaunch(game)
-                                } else {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(page)
-                                    }
-                                }
-                            },
+                        modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        game.icon?.let { icon ->
-                            if (isIconLikelyCircular(icon)) {
-                                GameIconFancy(icon = icon, contentDesc = game.displayName)
-                            } else {
-                                GameIconSimple(icon = icon, contentDesc = game.displayName)
+                        Box(
+                            modifier = Modifier
+                                .size(size)
+                                .clickable {
+                                    if (isSelected) {
+                                        onLaunch(game)
+                                    } else {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(page)
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            game.icon?.let { icon ->
+                                if (isIconLikelyCircular(icon)) {
+                                    GameIconFancy(icon = icon, contentDesc = game.displayName)
+                                } else {
+                                    GameIconSimple(icon = icon, contentDesc = game.displayName)
+                                }
                             }
                         }
                     }
