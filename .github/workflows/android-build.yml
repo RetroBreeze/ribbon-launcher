@@ -21,7 +21,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Grant Gradle permission
+      - name: Make Gradle executable
         run: chmod +x ./gradlew
 
       - name: Build Debug APK
@@ -36,17 +36,3 @@ jobs:
           name: ribbon-launcher-debug.apk
           path: ribbon-launcher-debug.apk
           retention-days: 7
-
-      - name: Comment on PR with APK download
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ✅ **Build successful for PR #${{ github.event.pull_request.number }}**
-
-            📦 [Download APK Artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})  
-            _(Scroll to the bottom and download `ribbon-launcher-debug.apk` from the Artifacts section)_
-
-            💡 You can install this APK directly on your Android phone for testing.
