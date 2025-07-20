@@ -87,7 +87,7 @@ fun NavigationBottomBar(
                 contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             ) {
-                Text("Right")
+                Text("Apps")
             }
         }
     }

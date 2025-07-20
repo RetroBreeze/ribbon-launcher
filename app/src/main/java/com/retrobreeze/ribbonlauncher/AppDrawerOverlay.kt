@@ -39,7 +39,7 @@ fun AppDrawerOverlay(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp)
+                .padding(start = 32.dp, top = 32.dp)
                 .clickable(
                     onClick = onDismiss,
                     indication = null,
