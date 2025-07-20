@@ -79,7 +79,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
             NavigationBottomBar(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                onLeftClick = { showDrawer = !showDrawer }
+                onRightClick = { showDrawer = !showDrawer }
             )
         }
 

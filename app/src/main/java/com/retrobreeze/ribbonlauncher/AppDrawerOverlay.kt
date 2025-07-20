@@ -7,8 +7,9 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,16 +49,18 @@ fun AppDrawerOverlay(
             Surface(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(280.dp)
+                    .width(480.dp)
                     .align(Alignment.CenterEnd)
             ) {
-                LazyColumn(
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(5),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(apps) { app ->
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -65,19 +68,19 @@ fun AppDrawerOverlay(
                                         context.startActivity(it)
                                     }
                                     onDismiss()
-                                }
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
                                 painter = rememberAsyncImagePainter(app.icon),
                                 contentDescription = app.displayName,
-                                modifier = Modifier.size(48.dp)
+                                modifier = Modifier.size(64.dp)
                             )
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = app.displayName,
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1
                             )
                         }
                     }
