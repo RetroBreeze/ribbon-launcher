@@ -45,7 +45,6 @@ fun GameCarousel(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010))
             .padding(horizontal = 32.dp)
     ) {
         Box(
