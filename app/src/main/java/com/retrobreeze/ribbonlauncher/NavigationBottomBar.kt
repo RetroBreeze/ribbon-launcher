@@ -33,9 +33,10 @@ fun NavigationBottomBar(
         )
     }
 
-    val buttonGradient = remember(isDark) {
-        val start = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
-        val end = if (isDark) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+    val colorScheme = MaterialTheme.colorScheme
+    val buttonGradient = remember(isDark, colorScheme) {
+        val start = if (isDark) colorScheme.primaryContainer else colorScheme.primary
+        val end = if (isDark) colorScheme.primary else colorScheme.primaryContainer
         Brush.verticalGradient(listOf(start, end))
     }
 
