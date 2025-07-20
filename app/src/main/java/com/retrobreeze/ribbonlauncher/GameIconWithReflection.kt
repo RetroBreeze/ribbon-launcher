@@ -5,9 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,19 +50,7 @@ fun GameIconWithReflection(
                 .offset { IntOffset(0, offsetPx) }
                 .height(reflectionHeight)
                 .width(iconSize)
-                .graphicsLayer { clip = true }
-                .drawWithCache {
-                    val gradient = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Black.copy(alpha = 0.4f),
-                            Color.Transparent
-                        )
-                    )
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(gradient, blendMode = androidx.compose.ui.graphics.BlendMode.DstIn)
-                    }
-                },
+                .graphicsLayer { clip = true },
             contentAlignment = Alignment.TopCenter
         ) {
             Box(
