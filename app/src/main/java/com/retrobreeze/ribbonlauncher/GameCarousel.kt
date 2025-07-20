@@ -33,9 +33,9 @@ import kotlin.math.roundToInt
 @Composable
 fun GameCarousel(
     games: List<GameEntry>,
+    pagerState: PagerState,
     onLaunch: (GameEntry) -> Unit
 ) {
-    val pagerState = rememberPagerState(initialPage = 0) { games.size }
     val coroutineScope = rememberCoroutineScope()
     val itemSpacing = 32.dp
     val itemSize = 150.dp
@@ -194,5 +194,6 @@ fun GameCarouselDebugPreview() {
         GameEntry("com.example.two", "Gyro", ColorDrawable(Color.Gray.toArgb())),
         GameEntry("com.example.three", "Yeti", ColorDrawable(Color.Gray.toArgb()))
     )
-    GameCarousel(games = sampleGames, onLaunch = {})
+    val state = rememberPagerState(initialPage = 0) { sampleGames.size }
+    GameCarousel(games = sampleGames, pagerState = state, onLaunch = {})
 }
