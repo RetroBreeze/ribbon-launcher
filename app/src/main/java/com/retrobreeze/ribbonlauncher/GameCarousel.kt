@@ -91,7 +91,12 @@ fun GameCarousel(
                             contentAlignment = Alignment.TopCenter
                         ) {
                             game.icon?.let { icon ->
-                                GameIconWithReflection(icon = icon, contentDesc = game.displayName)
+                                GameIconWithReflection(
+                                    icon = icon,
+                                    contentDesc = game.displayName,
+                                    iconSize = size,
+                                    reflectionRatio = reflectionRatio
+                                )
                             }
                         }
                     }
