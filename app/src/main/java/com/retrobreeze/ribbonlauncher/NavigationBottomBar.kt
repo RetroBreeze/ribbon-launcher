@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,7 +48,6 @@ fun NavigationBottomBar(
             .fillMaxWidth()
             .height(64.dp)
             .background(gradient)
-            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -54,7 +56,7 @@ fun NavigationBottomBar(
             Button(
                 onClick = onLeftClick,
                 modifier = Modifier
-                    .weight(1f)
+                    .width(64.dp)
                     .fillMaxHeight()
                     .background(buttonGradient, RoundedCornerShape(0.dp)),
                 shape = RoundedCornerShape(0.dp),
@@ -67,7 +69,7 @@ fun NavigationBottomBar(
             Button(
                 onClick = onCenterClick,
                 modifier = Modifier
-                    .weight(3f)
+                    .weight(1f)
                     .fillMaxHeight()
                     .background(buttonGradient, RoundedCornerShape(0.dp)),
                 shape = RoundedCornerShape(0.dp),
@@ -80,14 +82,17 @@ fun NavigationBottomBar(
             Button(
                 onClick = onRightClick,
                 modifier = Modifier
-                    .weight(1f)
+                    .width(64.dp)
                     .fillMaxHeight()
                     .background(buttonGradient, RoundedCornerShape(0.dp)),
                 shape = RoundedCornerShape(0.dp),
                 contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             ) {
-                Text("Apps")
+                Icon(
+                    imageVector = Icons.Filled.Apps,
+                    contentDescription = null
+                )
             }
         }
     }
