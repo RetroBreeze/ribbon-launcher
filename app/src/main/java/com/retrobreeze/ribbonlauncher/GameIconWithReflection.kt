@@ -50,8 +50,10 @@ fun GameIconWithReflection(
                 }
                 .drawWithCache {
                     val gradient = Brush.verticalGradient(
-                        0f to Color.Black.copy(alpha = 0.4f),
-                        1f to Color.Transparent
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.4f),
+                            Color.Transparent
+                        )
                     )
                     onDrawWithContent {
                         drawContent()
@@ -65,7 +67,6 @@ fun GameIconWithReflection(
                 GameIconSimple(icon = icon, contentDesc = "")
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
