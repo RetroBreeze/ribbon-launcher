@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.retrobreeze.ribbonlauncher.GameCarousel
 import com.retrobreeze.ribbonlauncher.StatusTopBar
+import com.retrobreeze.ribbonlauncher.NavigationBottomBar
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
 
 class MainActivity : ComponentActivity() {
@@ -47,7 +49,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .padding(top = 32.dp, bottom = 64.dp),
                 contentAlignment = Alignment.Center
             ) {
                 GameCarousel(games) { game ->
@@ -61,6 +64,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 }
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
+            NavigationBottomBar(modifier = Modifier.align(Alignment.BottomCenter))
         }
 
     }

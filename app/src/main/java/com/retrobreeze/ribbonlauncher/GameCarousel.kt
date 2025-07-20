@@ -107,13 +107,14 @@ fun GameCarousel(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 40.dp)
+                .padding(bottom = 16.dp)
                 .fillMaxWidth()
-                .height(60.dp),
+                .height(48.dp),
             contentAlignment = Alignment.Center
         ) {
             FadingStaticLabel(
-                text = games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()
+                text = games.getOrNull(pagerState.currentPage)?.displayName.orEmpty(),
+                height = 32.dp
             )
         }
     }
@@ -122,7 +123,7 @@ fun GameCarousel(
 @Composable
 fun FadingStaticLabel(
     text: String,
-    height: Dp = 40.dp,
+    height: Dp = 32.dp,
     fadeDuration: Int = 150
 ) {
     var currentText by remember { mutableStateOf(text) }
@@ -174,7 +175,7 @@ fun renderTextToBitmap(
     val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = android.graphics.Color.WHITE
         textAlign = Paint.Align.CENTER
-        textSize = heightPx * 0.6f
+        textSize = heightPx * 0.5f
         typeface = Typeface.DEFAULT_BOLD
     }
 
