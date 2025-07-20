@@ -1,4 +1,4 @@
-name: Android Debug Build
+name: Android Debug Build & Publish
 
 on:
   push:
@@ -8,31 +8,67 @@ on:
 
 jobs:
   build:
-    name: Build and Upload APK
+    name: Build APK and Publish to GitHub Pages
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout source code (master or PR branch)
       - name: Checkout source
         uses: actions/checkout@v3
 
+      # 2. Set up Java JDK 17
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Make Gradle executable
+      # 3. Make gradlew executable
+      - name: Grant Gradle permission
         run: chmod +x ./gradlew
 
+      # 4. Build the debug APK
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
+      # 5. Rename APK for consistency
       - name: Rename APK
         run: mv app/build/outputs/apk/debug/app-debug.apk ribbon-launcher-debug.apk
 
+      # 6. Upload APK as GitHub Action artifact (for manual download)
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ribbon-launcher-debug.apk
           path: ribbon-launcher-debug.apk
           retention-days: 7
+
+      # 7. Checkout gh-pages branch in a separate folder
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      # 8. Copy the APK and (optional) index.html into gh-pages
+      - name: Copy APK to GitHub Pages
+        run: |
+          cp ribbon-launcher-debug.apk gh-pages/latest.apk
+          echo "<!DOCTYPE html>
+          <html>
+            <head><title>Ribbon Launcher</title></head>
+            <body>
+              <h1>Download Latest APK</h1>
+              <p><a href='latest.apk' download>⬇️ Download ribbon-launcher-debug.apk</a></p>
+            </body>
+          </html>" > gh-pages/index.html
+
+      # 9. Commit and push to gh-pages
+      - name: Push to GitHub Pages
+        run: |
+          cd gh-pages
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add latest.apk index.html
+          git commit -m "Publish APK from build $GITHUB_RUN_ID" || echo "No changes to commit"
+          git push origin gh-pages
