@@ -48,7 +48,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .padding(top = 32.dp, bottom = 64.dp),
                 contentAlignment = Alignment.Center
             ) {
                 GameCarousel(games) { game ->

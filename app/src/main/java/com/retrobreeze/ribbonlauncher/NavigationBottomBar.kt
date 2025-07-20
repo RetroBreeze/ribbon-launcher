@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -32,6 +33,12 @@ fun NavigationBottomBar(
         )
     }
 
+    val buttonGradient = remember(isDark) {
+        val start = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+        val end = if (isDark) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+        Brush.verticalGradient(listOf(start, end))
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -47,10 +54,11 @@ fun NavigationBottomBar(
                 onClick = onLeftClick,
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
+                    .fillMaxHeight()
+                    .background(buttonGradient, RoundedCornerShape(0.dp)),
                 shape = RoundedCornerShape(0.dp),
                 contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             ) {
                 Text("Left")
             }
@@ -59,10 +67,11 @@ fun NavigationBottomBar(
                 onClick = onCenterClick,
                 modifier = Modifier
                     .weight(3f)
-                    .fillMaxHeight(),
+                    .fillMaxHeight()
+                    .background(buttonGradient, RoundedCornerShape(0.dp)),
                 shape = RoundedCornerShape(0.dp),
                 contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             ) {
                 Text("Center")
             }
@@ -71,10 +80,11 @@ fun NavigationBottomBar(
                 onClick = onRightClick,
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
+                    .fillMaxHeight()
+                    .background(buttonGradient, RoundedCornerShape(0.dp)),
                 shape = RoundedCornerShape(0.dp),
                 contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             ) {
                 Text("Right")
             }
