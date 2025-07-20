@@ -45,7 +45,6 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
-            StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
             Box(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -61,6 +60,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     }
                 }
             }
+            StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
         }
 
     }
