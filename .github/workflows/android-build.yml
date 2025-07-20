@@ -2,19 +2,17 @@ name: Android Debug Build
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
   build:
-    name: Build APK
+    name: Build and Upload APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: Checkout source
         uses: actions/checkout@v3
 
       - name: Set up JDK
@@ -23,14 +21,32 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Grant execute permission to Gradle
+      - name: Grant Gradle permission
         run: chmod +x ./gradlew
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Rename APK
+        run: mv app/build/outputs/apk/debug/app-debug.apk ribbon-launcher-debug.apk
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ribbon-launcher-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ribbon-launcher-debug.apk
+          retention-days: 7
+
+      - name: Comment on PR with APK download
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ✅ **Build successful for PR #${{ github.event.pull_request.number }}**
+
+            📦 [Download APK Artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})  
+            _(Scroll to the bottom and download `ribbon-launcher-debug.apk` from the Artifacts section)_
+
+            💡 You can install this APK directly on your Android phone for testing.
