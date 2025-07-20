@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.retrobreeze.ribbonlauncher.GameCarousel
 import com.retrobreeze.ribbonlauncher.StatusTopBar
+import com.retrobreeze.ribbonlauncher.NavigationBottomBar
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +62,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 }
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
+            NavigationBottomBar(modifier = Modifier.align(Alignment.BottomCenter))
         }
 
     }
