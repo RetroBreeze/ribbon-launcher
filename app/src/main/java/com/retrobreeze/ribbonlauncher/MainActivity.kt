@@ -91,7 +91,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     viewModel.cycleSortMode()
                     val newIndex = viewModel.games.indexOfFirst { it.packageName == current?.packageName }
                         .coerceAtLeast(0)
-                    coroutineScope.launch { pagerState.animateScrollToPage(newIndex) }
+                    coroutineScope.launch { pagerState.scrollToPage(newIndex) }
                 },
                 modifier = Modifier
                     .align(Alignment.TopStart)

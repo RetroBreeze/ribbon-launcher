@@ -10,11 +10,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -28,8 +30,11 @@ import com.retrobreeze.ribbonlauncher.ui.components.GameIconSimple
 import com.retrobreeze.ribbonlauncher.util.isIconLikelyCircular
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameCarousel(
     games: List<GameEntry>,
@@ -37,10 +42,25 @@ fun GameCarousel(
     onLaunch: (GameEntry) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
+    var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
     val itemSpacing = 32.dp
     val itemSize = 150.dp
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
+
+    LaunchedEffect(games) {
+        val itemWidthPx = with(density) { (maxPageWidth + itemSpacing).toPx() }
+        games.forEachIndexed { index, game ->
+            val prev = previousIndices[game.packageName] ?: index
+            val anim = animatables.getOrPut(game.packageName) { Animatable(0f) }
+            val delta = (prev - index) * itemWidthPx
+            anim.snapTo(delta)
+            launch { anim.animateTo(0f, animationSpec = tween(durationMillis = 300)) }
+        }
+        previousIndices = games.mapIndexed { i, g -> g.packageName to i }.toMap()
+    }
 
     Box(
         modifier = Modifier
@@ -63,7 +83,8 @@ fun GameCarousel(
                     flingBehavior = PagerDefaults.flingBehavior(
                         state = pagerState,
                         pagerSnapDistance = PagerSnapDistance.atMost(1)
-                    )
+                    ),
+                    key = { index -> games[index].packageName }
                 ) { page ->
                     val game = games[page]
                     val isSelected = pagerState.currentPage == page
@@ -72,8 +93,11 @@ fun GameCarousel(
                         label = "SizeAnimation"
                     )
 
+                    val offset = animatables[game.packageName]?.value ?: 0f
                     Box(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer { translationX = offset },
                         contentAlignment = Alignment.Center
                     ) {
                         Box(
