@@ -9,9 +9,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,7 +47,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val games = viewModel.games
+    val apps = viewModel.apps
     val context = LocalContext.current
+    var showDrawer by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -65,8 +70,17 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     }
                 }
             }
+            AppDrawerOverlay(
+                apps = apps,
+                showDrawer = showDrawer,
+                onDismiss = { showDrawer = false },
+                modifier = Modifier.align(Alignment.Center)
+            )
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
-            NavigationBottomBar(modifier = Modifier.align(Alignment.BottomCenter))
+            NavigationBottomBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onRightClick = { showDrawer = !showDrawer }
+            )
         }
 
     }
