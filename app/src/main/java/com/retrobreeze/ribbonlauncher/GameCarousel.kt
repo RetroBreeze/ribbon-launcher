@@ -23,9 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.retrobreeze.ribbonlauncher.model.GameEntry
-import com.retrobreeze.ribbonlauncher.ui.components.GameIconFancy
-import com.retrobreeze.ribbonlauncher.ui.components.GameIconSimple
-import com.retrobreeze.ribbonlauncher.util.isIconLikelyCircular
+import com.retrobreeze.ribbonlauncher.ui.components.GameIconWithReflection
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -71,6 +69,7 @@ fun GameCarousel(
                         targetValue = if (isSelected) itemSize * selectedScale else itemSize,
                         label = "SizeAnimation"
                     )
+                    val reflectionRatio = 0.4f
 
                     Box(
                         modifier = Modifier.fillMaxWidth(),
@@ -78,7 +77,8 @@ fun GameCarousel(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(size)
+                                .width(size)
+                                .height(size * (1f + reflectionRatio))
                                 .clickable {
                                     if (isSelected) {
                                         onLaunch(game)
@@ -88,14 +88,10 @@ fun GameCarousel(
                                         }
                                     }
                                 },
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.TopCenter
                         ) {
                             game.icon?.let { icon ->
-                                if (isIconLikelyCircular(icon)) {
-                                    GameIconFancy(icon = icon, contentDesc = game.displayName)
-                                } else {
-                                    GameIconSimple(icon = icon, contentDesc = game.displayName)
-                                }
+                                GameIconWithReflection(icon = icon, contentDesc = game.displayName)
                             }
                         }
                     }
