@@ -1,10 +1,14 @@
 package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.ripple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -20,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.pointer.pointerInput
 
 @Composable
 fun NavigationBottomBar(
@@ -79,15 +84,20 @@ fun NavigationBottomBar(
                 Text("Center")
             }
             Spacer(modifier = Modifier.width(4.dp))
-            Button(
-                onClick = onRightClick,
+            val interactionSource = remember { MutableInteractionSource() }
+            Box(
                 modifier = Modifier
                     .width(64.dp)
                     .fillMaxHeight()
-                    .background(buttonGradient, RoundedCornerShape(0.dp)),
-                shape = RoundedCornerShape(0.dp),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    .background(buttonGradient, RoundedCornerShape(0.dp))
+                    .indication(interactionSource, ripple())
+                    .pointerInput(onRightClick) {
+                        detectTapGestures(onPress = {
+                            onRightClick()
+                            awaitRelease()
+                        })
+                    },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Apps,
