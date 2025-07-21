@@ -59,6 +59,8 @@ fun GameCarousel(
         val newSelectedIndex = games.indexOfFirst { it.packageName == selectedPackage }.takeIf { it != -1 } ?: pagerState.currentPage
         val indexOffset = newSelectedIndex - oldSelectedIndex
 
+        pagerState.scrollToPage(newSelectedIndex)
+
         games.forEachIndexed { index, game ->
             val prev = previousIndices[game.packageName] ?: index
             val anim = animatables.getOrPut(game.packageName) { Animatable(0f) }
