@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -90,7 +90,7 @@ fun NavigationBottomBar(
                     .width(64.dp)
                     .fillMaxHeight()
                     .background(buttonGradient, RoundedCornerShape(0.dp))
-                    .indication(interactionSource, rememberRipple())
+                    .indication(interactionSource, ripple())
                     .pointerInput(onRightClick) {
                         detectTapGestures(onPress = {
                             onRightClick()
