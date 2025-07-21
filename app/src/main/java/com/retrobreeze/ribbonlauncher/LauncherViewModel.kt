@@ -123,6 +123,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     fun cycleSortMode() {
         sortMode = sortMode.next()
         prefs.edit().putString(KEY_SORT_MODE, sortMode.name).apply()
+
         sortGames()
     }
 
@@ -130,6 +131,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         val now = System.currentTimeMillis()
         lastPlayed[game.packageName] = now
         prefs.edit().putLong(KEY_LAST_PLAYED_PREFIX + game.packageName, now).apply()
+
         if (sortMode == SortMode.RECENT) {
             sortGames()
         }
