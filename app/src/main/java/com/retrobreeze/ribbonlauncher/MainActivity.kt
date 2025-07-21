@@ -52,13 +52,19 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val games = viewModel.games
     val sortMode = viewModel.sortMode
     val apps = viewModel.apps
+    val persistedSelected = viewModel.selectedGamePackageName
     val context = LocalContext.current
     var showDrawer by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size }
-    var selectedPackageName by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(games) {
+        val index = games.indexOfFirst { it.packageName == persistedSelected }
+        if (index >= 0) pagerState.scrollToPage(index)
+    }
 
     LaunchedEffect(pagerState.currentPage, games) {
-        selectedPackageName = games.getOrNull(pagerState.currentPage)?.packageName
+        val pkg = games.getOrNull(pagerState.currentPage)?.packageName
+        viewModel.setSelectedGame(pkg)
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -73,7 +79,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 GameCarousel(
                     games = games,
                     pagerState = pagerState,
-                    selectedPackageName = selectedPackageName,
+                    selectedPackageName = persistedSelected,
                 ) { game ->
                     val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
                     if (intent != null) {

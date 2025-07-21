@@ -6,6 +6,8 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import android.content.Intent
 import android.os.Build
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 
 class LauncherViewModel(app: Application) : AndroidViewModel(app) {
@@ -21,11 +23,20 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     var sortMode by mutableStateOf(SortMode.AZ)
         private set
 
+    var selectedGamePackageName by mutableStateOf<String?>(null)
+        private set
+
     private val lastPlayed = mutableStateMapOf<String, Long>()
 
     init {
-        loadInstalledGames()
-        loadInstalledApps()
+        viewModelScope.launch {
+            val context = getApplication<Application>().applicationContext
+            sortMode = context.loadSortMode()
+            selectedGamePackageName = context.loadSelectedGame()
+            lastPlayed.putAll(context.loadLastPlayed())
+            loadInstalledGames()
+            loadInstalledApps()
+        }
     }
 
     private fun loadInstalledGames() {
@@ -92,13 +103,26 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
     fun cycleSortMode() {
         sortMode = sortMode.next()
+        viewModelScope.launch {
+            getApplication<Application>().applicationContext.saveSortMode(sortMode)
+        }
         sortGames()
     }
 
     fun recordLaunch(game: GameEntry) {
         lastPlayed[game.packageName] = System.currentTimeMillis()
+        viewModelScope.launch {
+            getApplication<Application>().applicationContext.saveLastPlayed(lastPlayed)
+        }
         if (sortMode == SortMode.RECENT) {
             sortGames()
+        }
+    }
+
+    fun setSelectedGame(packageName: String?) {
+        selectedGamePackageName = packageName
+        viewModelScope.launch {
+            getApplication<Application>().applicationContext.saveSelectedGame(packageName)
         }
     }
 
