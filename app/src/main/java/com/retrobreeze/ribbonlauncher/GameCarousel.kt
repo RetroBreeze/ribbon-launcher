@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -45,6 +46,7 @@ fun GameCarousel(
     val density = LocalDensity.current
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
+    var selectedPackageName by remember { mutableStateOf<String?>(null) }
     val itemSpacing = 32.dp
     val itemSize = 150.dp
     val selectedScale = 1.25f
@@ -52,9 +54,7 @@ fun GameCarousel(
 
     LaunchedEffect(games) {
         val itemWidthPx = with(density) { (maxPageWidth + itemSpacing).toPx() }
-        val previouslySelected = previousIndices.entries
-            .firstOrNull { it.value == pagerState.currentPage }
-            ?.key
+        val previouslySelected = selectedPackageName
 
         games.forEachIndexed { index, game ->
             val prev = previousIndices[game.packageName] ?: index
@@ -67,6 +67,10 @@ fun GameCarousel(
             }
         }
         previousIndices = games.mapIndexed { i, g -> g.packageName to i }.toMap()
+    }
+
+    LaunchedEffect(pagerState.currentPage, games) {
+        selectedPackageName = games.getOrNull(pagerState.currentPage)?.packageName
     }
 
     Box(
@@ -104,7 +108,8 @@ fun GameCarousel(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .graphicsLayer { translationX = offset },
+                            .graphicsLayer { translationX = offset }
+                            .zIndex(if (isSelected) 1f else 0f),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(
