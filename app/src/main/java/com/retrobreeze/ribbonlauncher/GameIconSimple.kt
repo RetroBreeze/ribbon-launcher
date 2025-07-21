@@ -2,7 +2,6 @@ package com.retrobreeze.ribbonlauncher.ui.components
 
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,14 +13,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 
 @Composable
-fun GameIconSimple(icon: Drawable, contentDesc: String) {
+fun GameIconSimple(icon: Drawable, contentDesc: String, modifier: Modifier = Modifier) {
     val painter = BitmapPainter(icon.toBitmap().asImageBitmap())
 
     Image(
         painter = painter,
         contentDescription = contentDesc,
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .clip(RoundedCornerShape(12.dp)),
         contentScale = ContentScale.Crop
     )

@@ -26,8 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.retrobreeze.ribbonlauncher.model.GameEntry
-import com.retrobreeze.ribbonlauncher.ui.components.GameIconFancy
-import com.retrobreeze.ribbonlauncher.ui.components.GameIconSimple
+import com.retrobreeze.ribbonlauncher.ui.components.GameIconWithReflection
 import com.retrobreeze.ribbonlauncher.util.isIconLikelyCircular
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -116,7 +115,8 @@ fun GameCarousel(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(size)
+                                .width(size)
+                                .height(size * 1.25f)
                                 .clickable {
                                     if (isSelected) {
                                         onLaunch(game)
@@ -129,11 +129,12 @@ fun GameCarousel(
                             contentAlignment = Alignment.Center
                         ) {
                             game.icon?.let { icon ->
-                                if (isIconLikelyCircular(icon)) {
-                                    GameIconFancy(icon = icon, contentDesc = game.displayName)
-                                } else {
-                                    GameIconSimple(icon = icon, contentDesc = game.displayName)
-                                }
+                                GameIconWithReflection(
+                                    icon = icon,
+                                    contentDesc = game.displayName,
+                                    isCircular = isIconLikelyCircular(icon),
+                                    iconSize = size
+                                )
                             }
                         }
                     }

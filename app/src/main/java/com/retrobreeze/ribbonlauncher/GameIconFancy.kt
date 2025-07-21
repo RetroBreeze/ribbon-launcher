@@ -20,13 +20,12 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.core.graphics.drawable.toBitmap
 
 @Composable
-fun GameIconFancy(icon: Drawable, contentDesc: String) {
+fun GameIconFancy(icon: Drawable, contentDesc: String, modifier: Modifier = Modifier) {
     // Convert Drawable to Painter
     val painter: Painter = BitmapPainter(icon.toBitmap().asImageBitmap())
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(Color.Black),
         contentAlignment = Alignment.Center
