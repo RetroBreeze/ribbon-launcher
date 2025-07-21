@@ -1,4 +1,4 @@
-24. com.retrobreeze.ribbonlauncher
+package com.retrobreeze.ribbonlauncher
 
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
