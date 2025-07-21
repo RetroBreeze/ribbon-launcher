@@ -33,14 +33,8 @@ fun AppDrawerOverlay(
 
     AnimatedVisibility(
         visible = showDrawer,
-        enter = slideInHorizontally(
-            animationSpec = tween(durationMillis = 0),
-            initialOffsetX = { it }
-        ),
-        exit = slideOutHorizontally(
-            animationSpec = tween(durationMillis = 0),
-            targetOffsetX = { it }
-        )
+        enter = slideInHorizontally(animationSpec = tween(), initialOffsetX = { it }),
+        exit = slideOutHorizontally(animationSpec = tween(), targetOffsetX = { it })
     ) {
         Box(
             modifier = modifier
