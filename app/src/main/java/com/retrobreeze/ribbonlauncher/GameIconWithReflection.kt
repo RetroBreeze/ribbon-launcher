@@ -71,10 +71,8 @@ fun GameIconWithReflection(
                         1f to Color.Transparent
                     )
                     onDrawWithContent {
-                        withLayer {
-                            drawContent()
-                            drawRect(gradient, blendMode = BlendMode.DstIn)
-                        }
+                        drawContent()
+                        drawRect(gradient, blendMode = BlendMode.DstIn)
                     }
                 }
         ) {
