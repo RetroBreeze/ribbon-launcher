@@ -67,11 +67,14 @@ fun GameIconWithReflection(
                 .graphicsLayer { scaleY = -1f }
                 .drawWithCache {
                     val gradient = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0.4f), Color.Transparent)
+                        0f to Color.Black.copy(alpha = 0.4f),
+                        1f to Color.Transparent
                     )
                     onDrawWithContent {
-                        drawContent()
-                        drawRect(gradient, blendMode = BlendMode.DstIn)
+                        withLayer {
+                            drawContent()
+                            drawRect(gradient, blendMode = BlendMode.DstIn)
+                        }
                     }
                 }
         ) {
