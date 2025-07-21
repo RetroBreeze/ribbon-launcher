@@ -1,6 +1,7 @@
 package com.retrobreeze.ribbonlauncher
 
 import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
@@ -11,6 +12,14 @@ import kotlinx.coroutines.launch
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 
 class LauncherViewModel(app: Application) : AndroidViewModel(app) {
+
+    companion object {
+        private const val PREFS_NAME = "launcher_prefs"
+        private const val KEY_SORT_MODE = "sort_mode"
+        private const val KEY_LAST_PLAYED_PREFIX = "lp_"
+    }
+
+    private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     private var allGames: List<GameEntry> = emptyList()
 
@@ -36,6 +45,27 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
             lastPlayed.putAll(context.loadLastPlayed())
             loadInstalledGames()
             loadInstalledApps()
+        }
+
+    }
+
+    private fun loadPreferences() {
+        sortMode = try {
+            SortMode.valueOf(prefs.getString(KEY_SORT_MODE, SortMode.AZ.name)!!)
+        } catch (_: IllegalArgumentException) {
+            SortMode.AZ
+        }
+
+        prefs.all.forEach { (key, value) ->
+            if (key.startsWith(KEY_LAST_PLAYED_PREFIX)) {
+                val packageName = key.removePrefix(KEY_LAST_PLAYED_PREFIX)
+                val time = when (value) {
+                    is Long -> value
+                    is String -> value.toLongOrNull() ?: return@forEach
+                    else -> return@forEach
+                }
+                lastPlayed[packageName] = time
+            }
         }
     }
 
@@ -106,6 +136,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             getApplication<Application>().applicationContext.saveSortMode(sortMode)
         }
+
         sortGames()
     }
 
@@ -114,6 +145,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             getApplication<Application>().applicationContext.saveLastPlayed(lastPlayed)
         }
+
         if (sortMode == SortMode.RECENT) {
             sortGames()
         }
