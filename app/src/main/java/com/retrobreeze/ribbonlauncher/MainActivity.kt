@@ -65,6 +65,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     LaunchedEffect(pagerState.currentPage, games) {
         val pkg = games.getOrNull(pagerState.currentPage)?.packageName
         viewModel.setSelectedGame(pkg)
+
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {
