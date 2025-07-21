@@ -53,10 +53,16 @@ fun GameCarousel(
     val maxPageWidth = itemSize * selectedScale
 
     LaunchedEffect(games) {
+        if (games.isEmpty()) {
+            previousIndices = emptyMap()
+            return@LaunchedEffect
+        }
+
         val itemWidthPx = with(density) { (maxPageWidth + itemSpacing).toPx() }
         val selectedPackage = selectedPackageName
-        val oldSelectedIndex = previousIndices[selectedPackage] ?: pagerState.currentPage
-        val newSelectedIndex = games.indexOfFirst { it.packageName == selectedPackage }.takeIf { it != -1 } ?: pagerState.currentPage
+        val oldSelectedIndex = previousIndices[selectedPackage] ?: pagerState.currentPage.coerceIn(0, games.lastIndex)
+        val newSelectedIndex = games.indexOfFirst { it.packageName == selectedPackage }
+            .takeIf { it >= 0 } ?: oldSelectedIndex
         val indexOffset = newSelectedIndex - oldSelectedIndex
 
         pagerState.scrollToPage(newSelectedIndex)
