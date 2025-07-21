@@ -1,6 +1,7 @@
 package com.retrobreeze.ribbonlauncher
 
 import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
@@ -10,15 +11,51 @@ import com.retrobreeze.ribbonlauncher.model.GameEntry
 
 class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
+    companion object {
+        private const val PREFS_NAME = "launcher_prefs"
+        private const val KEY_SORT_MODE = "sort_mode"
+        private const val KEY_LAST_PLAYED_PREFIX = "lp_"
+    }
+
+    private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    private var allGames: List<GameEntry> = emptyList()
+
     var games by mutableStateOf<List<GameEntry>>(emptyList())
         private set
 
     var apps by mutableStateOf<List<GameEntry>>(emptyList())
         private set
 
+    var sortMode by mutableStateOf(SortMode.AZ)
+        private set
+
+    private val lastPlayed = mutableStateMapOf<String, Long>()
+
     init {
+        loadPreferences()
         loadInstalledGames()
         loadInstalledApps()
+    }
+
+    private fun loadPreferences() {
+        sortMode = try {
+            SortMode.valueOf(prefs.getString(KEY_SORT_MODE, SortMode.AZ.name)!!)
+        } catch (_: IllegalArgumentException) {
+            SortMode.AZ
+        }
+
+        prefs.all.forEach { (key, value) ->
+            if (key.startsWith(KEY_LAST_PLAYED_PREFIX)) {
+                val packageName = key.removePrefix(KEY_LAST_PLAYED_PREFIX)
+                val time = when (value) {
+                    is Long -> value
+                    is String -> value.toLongOrNull() ?: return@forEach
+                    else -> return@forEach
+                }
+                lastPlayed[packageName] = time
+            }
+        }
     }
 
     private fun loadInstalledGames() {
@@ -29,7 +66,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
         val resolveInfoList = pm.queryIntentActivities(intent, 0)
 
-        games = resolveInfoList
+        allGames = resolveInfoList
             .map { it.activityInfo.applicationInfo }
             .filter { appInfo ->
                 val isGame = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -49,6 +86,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     icon = pm.getApplicationIcon(appInfo)
                 )
             }
+
+        sortGames()
     }
 
     private fun loadInstalledApps() {
@@ -79,6 +118,32 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     icon = pm.getApplicationIcon(appInfo)
                 )
             }
+    }
+
+    fun cycleSortMode() {
+        sortMode = sortMode.next()
+        prefs.edit().putString(KEY_SORT_MODE, sortMode.name).apply()
+        sortGames()
+    }
+
+    fun recordLaunch(game: GameEntry) {
+        val now = System.currentTimeMillis()
+        lastPlayed[game.packageName] = now
+        prefs.edit().putLong(KEY_LAST_PLAYED_PREFIX + game.packageName, now).apply()
+        if (sortMode == SortMode.RECENT) {
+            sortGames()
+        }
+    }
+
+    private fun sortGames() {
+        games = when (sortMode) {
+            SortMode.AZ -> allGames.sortedBy { it.displayName.lowercase() }
+            SortMode.ZA -> allGames.sortedByDescending { it.displayName.lowercase() }
+            SortMode.RECENT -> allGames.sortedWith(
+                compareByDescending<GameEntry> { lastPlayed[it.packageName] ?: Long.MIN_VALUE }
+                    .thenBy { it.displayName.lowercase() }
+            )
+        }
     }
 
 }
