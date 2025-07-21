@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +55,11 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val context = LocalContext.current
     var showDrawer by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size }
+    var selectedPackageName by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(pagerState.currentPage, games) {
+        selectedPackageName = games.getOrNull(pagerState.currentPage)?.packageName
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -64,7 +70,11 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     .padding(top = 32.dp, bottom = 64.dp),
                 contentAlignment = Alignment.Center
             ) {
-                GameCarousel(games, pagerState) { game ->
+                GameCarousel(
+                    games = games,
+                    pagerState = pagerState,
+                    selectedPackageName = selectedPackageName,
+                ) { game ->
                     val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
                     if (intent != null) {
                         context.startActivity(intent)

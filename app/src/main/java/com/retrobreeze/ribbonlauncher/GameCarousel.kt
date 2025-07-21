@@ -40,13 +40,13 @@ import kotlin.math.roundToInt
 fun GameCarousel(
     games: List<GameEntry>,
     pagerState: PagerState,
+    selectedPackageName: String?,
     onLaunch: (GameEntry) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
-    var selectedPackageName by remember { mutableStateOf<String?>(null) }
     val itemSpacing = 32.dp
     val itemSize = 150.dp
     val selectedScale = 1.25f
@@ -73,10 +73,6 @@ fun GameCarousel(
         }
 
         previousIndices = games.mapIndexed { i, g -> g.packageName to i }.toMap()
-    }
-
-    LaunchedEffect(pagerState.currentPage) {
-        selectedPackageName = games.getOrNull(pagerState.currentPage)?.packageName
     }
 
     Box(
@@ -237,5 +233,10 @@ fun GameCarouselDebugPreview() {
         GameEntry("com.example.three", "Yeti", ColorDrawable(Color.Gray.toArgb()))
     )
     val state = rememberPagerState(initialPage = 0) { sampleGames.size }
-    GameCarousel(games = sampleGames, pagerState = state, onLaunch = {})
+    GameCarousel(
+        games = sampleGames,
+        pagerState = state,
+        selectedPackageName = sampleGames.first().packageName,
+        onLaunch = {}
+    )
 }
