@@ -49,21 +49,20 @@ fun GameIconWithReflection(
                 GameIconSimple(icon = icon, contentDesc = contentDesc, modifier = Modifier.fillMaxSize())
             }
         }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(reflectionHeight)
                 .clip(shape)
-                .graphicsLayer {
-                    scaleY = -1f
-                }
+                .graphicsLayer { scaleY = -1f }
                 .drawWithCache {
                     val gradient = Brush.verticalGradient(
-                        colors = listOf(Color.Black.copy(alpha = 0.4f), Color.Transparent)
+                        colors = listOf(Color.White.copy(alpha = 0.4f), Color.Transparent)
                     )
                     onDrawWithContent {
                         drawContent()
-                        drawRect(brush = gradient, blendMode = BlendMode.DstIn)
+                        drawRect(gradient, blendMode = BlendMode.DstIn)
                     }
                 }
         ) {
