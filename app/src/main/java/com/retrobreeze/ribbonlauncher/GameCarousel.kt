@@ -47,7 +47,8 @@ fun GameCarousel(
     val density = LocalDensity.current
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
-    val itemSpacing = 32.dp
+    // Reduced spacing between items for a tighter layout
+    val itemSpacing = 24.dp
     val itemSize = 150.dp
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
