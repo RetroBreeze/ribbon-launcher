@@ -1,4 +1,4 @@
-package com.retrobreeze.ribbonlauncher
+24. com.retrobreeze.ribbonlauncher
 
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
@@ -48,7 +48,7 @@ fun GameCarousel(
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
     // Reduced spacing between items for a tighter layout
-    val itemSpacing = 24.dp
+    val itemSpacing = 12.dp
     val itemSize = 150.dp
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
