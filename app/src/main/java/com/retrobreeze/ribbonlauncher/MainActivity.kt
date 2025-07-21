@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import com.retrobreeze.ribbonlauncher.ui.background.AnimatedBackground
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
 
 class MainActivity : ComponentActivity() {
+    private val launcherViewModel: LauncherViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -40,9 +42,14 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             RibbonLauncherTheme {
-                LauncherScreen()
+                LauncherScreen(viewModel = launcherViewModel)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        launcherViewModel.refreshSort()
     }
 }
 

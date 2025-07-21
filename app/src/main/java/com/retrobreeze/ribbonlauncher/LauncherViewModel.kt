@@ -146,10 +146,10 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         val now = System.currentTimeMillis()
         lastPlayed[game.packageName] = now
         prefs.edit().putLong(KEY_LAST_PLAYED_PREFIX + game.packageName, now).apply()
+    }
 
-        if (sortMode == SortMode.RECENT) {
-            sortGames()
-        }
+    fun refreshSort() {
+        sortGames()
     }
 
     private fun sortGames() {
