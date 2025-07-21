@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -34,7 +35,7 @@ fun GameIconWithReflection(
     modifier: Modifier = Modifier
 ) {
     val painter = BitmapPainter(icon.toBitmap().asImageBitmap())
-    val shape = RoundedCornerShape(12.dp)
+    val shape: Shape = if (isCircular) androidx.compose.foundation.shape.CircleShape else RoundedCornerShape(12.dp)
     val reflectionHeight = iconSize * 0.25f
 
     Column(
@@ -44,9 +45,17 @@ fun GameIconWithReflection(
     ) {
         Box(modifier = Modifier.size(iconSize)) {
             if (isCircular) {
-                GameIconFancy(icon = icon, contentDesc = contentDesc, modifier = Modifier.fillMaxSize())
+                GameIconFancy(
+                    icon = icon,
+                    contentDesc = contentDesc,
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
-                GameIconSimple(icon = icon, contentDesc = contentDesc, modifier = Modifier.fillMaxSize())
+                GameIconSimple(
+                    icon = icon,
+                    contentDesc = contentDesc,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
 
