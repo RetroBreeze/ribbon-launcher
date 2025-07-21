@@ -78,7 +78,6 @@ fun GameCarousel(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 32.dp)
     ) {
         Box(
             modifier = Modifier.align(Alignment.Center),
