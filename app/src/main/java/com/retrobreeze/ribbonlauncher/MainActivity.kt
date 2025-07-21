@@ -57,7 +57,9 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val pagerState = rememberPagerState(initialPage = 0) { games.size }
     var selectedPackageName by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(pagerState.currentPage, games) {
+    
+    LaunchedEffect(pagerState.currentPage) {
+
         selectedPackageName = games.getOrNull(pagerState.currentPage)?.packageName
     }
 
