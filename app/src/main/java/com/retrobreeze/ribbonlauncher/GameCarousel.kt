@@ -54,22 +54,26 @@ fun GameCarousel(
 
     LaunchedEffect(games) {
         val itemWidthPx = with(density) { (maxPageWidth + itemSpacing).toPx() }
-        val previouslySelected = selectedPackageName
+        val selectedPackage = selectedPackageName
+        val oldSelectedIndex = previousIndices[selectedPackage] ?: pagerState.currentPage
+        val newSelectedIndex = games.indexOfFirst { it.packageName == selectedPackage }.takeIf { it != -1 } ?: pagerState.currentPage
+        val indexOffset = newSelectedIndex - oldSelectedIndex
 
         games.forEachIndexed { index, game ->
             val prev = previousIndices[game.packageName] ?: index
             val anim = animatables.getOrPut(game.packageName) { Animatable(0f) }
-            val delta = (prev - index) * itemWidthPx
-            val start = if (game.packageName == previouslySelected) 0f else delta
+            val delta = (prev - index + indexOffset) * itemWidthPx
+            val start = if (game.packageName == selectedPackage) 0f else delta
             anim.snapTo(start)
             if (start != 0f) {
                 launch { anim.animateTo(0f, animationSpec = tween(durationMillis = 300)) }
             }
         }
+
         previousIndices = games.mapIndexed { i, g -> g.packageName to i }.toMap()
     }
 
-    LaunchedEffect(pagerState.currentPage, games) {
+    LaunchedEffect(pagerState.currentPage) {
         selectedPackageName = games.getOrNull(pagerState.currentPage)?.packageName
     }
 
