@@ -55,12 +55,10 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val context = LocalContext.current
     var showDrawer by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size }
-    var selectedPackageName by remember { mutableStateOf<String?>(null) }
 
-    
-    LaunchedEffect(pagerState.currentPage) {
-
-        selectedPackageName = games.getOrNull(pagerState.currentPage)?.packageName
+    LaunchedEffect(pagerState.currentPage, games) {
+        val pkg = games.getOrNull(pagerState.currentPage)?.packageName
+        viewModel.setSelectedGame(pkg)
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -75,7 +73,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 GameCarousel(
                     games = games,
                     pagerState = pagerState,
-                    selectedPackageName = selectedPackageName,
+                    selectedPackageName = viewModel.selectedGamePackage,
                 ) { game ->
                     val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
                     if (intent != null) {

@@ -15,6 +15,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val PREFS_NAME = "launcher_prefs"
         private const val KEY_SORT_MODE = "sort_mode"
         private const val KEY_LAST_PLAYED_PREFIX = "lp_"
+        private const val KEY_SELECTED_GAME = "selected_game"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -32,6 +33,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
     private val lastPlayed = mutableStateMapOf<String, Long>()
 
+    var selectedGamePackage by mutableStateOf<String?>(null)
+        private set
+
     init {
         loadPreferences()
         loadInstalledGames()
@@ -44,6 +48,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         } catch (_: IllegalArgumentException) {
             SortMode.AZ
         }
+
+        selectedGamePackage = prefs.getString(KEY_SELECTED_GAME, null)
 
         prefs.all.forEach { (key, value) ->
             if (key.startsWith(KEY_LAST_PLAYED_PREFIX)) {
@@ -125,6 +131,15 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().putString(KEY_SORT_MODE, sortMode.name).apply()
 
         sortGames()
+    }
+
+    fun setSelectedGame(packageName: String?) {
+        selectedGamePackage = packageName
+        with(prefs.edit()) {
+            if (packageName == null) remove(KEY_SELECTED_GAME)
+            else putString(KEY_SELECTED_GAME, packageName)
+            apply()
+        }
     }
 
     fun recordLaunch(game: GameEntry) {
