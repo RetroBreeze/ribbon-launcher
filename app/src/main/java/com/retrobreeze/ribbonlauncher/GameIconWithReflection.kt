@@ -5,10 +5,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +36,7 @@ fun GameIconWithReflection(
     modifier: Modifier = Modifier
 ) {
     val painter = BitmapPainter(icon.toBitmap().asImageBitmap())
-    val shape: Shape = if (isCircular) androidx.compose.foundation.shape.CircleShape else RoundedCornerShape(12.dp)
+    val shape: Shape = if (isCircular) CircleShape else RoundedCornerShape(12.dp)
     val reflectionHeight = iconSize * 0.25f
 
     Column(
@@ -67,8 +68,10 @@ fun GameIconWithReflection(
                 .graphicsLayer { scaleY = -1f }
                 .drawWithCache {
                     val gradient = Brush.verticalGradient(
-                        0f to Color.Black.copy(alpha = 0.4f),
-                        1f to Color.Transparent
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.4f),
+                            Color.Transparent
+                        )
                     )
                     onDrawWithContent {
                         drawContent()
