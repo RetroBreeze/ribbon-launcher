@@ -65,7 +65,6 @@ fun GameIconWithReflection(
                 .fillMaxWidth()
                 .height(reflectionHeight)
                 .clip(shape)
-                .graphicsLayer { scaleY = -1f }
                 .drawWithCache {
                     val gradient = Brush.verticalGradient(
                         colors = listOf(
@@ -82,7 +81,9 @@ fun GameIconWithReflection(
             Image(
                 painter = painter,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer { scaleY = -1f },
                 contentScale = ContentScale.Crop
             )
         }
