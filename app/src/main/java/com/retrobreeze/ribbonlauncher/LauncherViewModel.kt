@@ -10,11 +10,18 @@ import com.retrobreeze.ribbonlauncher.model.GameEntry
 
 class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
+    private var allGames: List<GameEntry> = emptyList()
+
     var games by mutableStateOf<List<GameEntry>>(emptyList())
         private set
 
     var apps by mutableStateOf<List<GameEntry>>(emptyList())
         private set
+
+    var sortMode by mutableStateOf(SortMode.AZ)
+        private set
+
+    private val lastPlayed = mutableStateMapOf<String, Long>()
 
     init {
         loadInstalledGames()
@@ -29,7 +36,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
         val resolveInfoList = pm.queryIntentActivities(intent, 0)
 
-        games = resolveInfoList
+        allGames = resolveInfoList
             .map { it.activityInfo.applicationInfo }
             .filter { appInfo ->
                 val isGame = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -49,6 +56,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     icon = pm.getApplicationIcon(appInfo)
                 )
             }
+
+        sortGames()
     }
 
     private fun loadInstalledApps() {
@@ -79,6 +88,29 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     icon = pm.getApplicationIcon(appInfo)
                 )
             }
+    }
+
+    fun cycleSortMode() {
+        sortMode = sortMode.next()
+        sortGames()
+    }
+
+    fun recordLaunch(game: GameEntry) {
+        lastPlayed[game.packageName] = System.currentTimeMillis()
+        if (sortMode == SortMode.RECENT) {
+            sortGames()
+        }
+    }
+
+    private fun sortGames() {
+        games = when (sortMode) {
+            SortMode.AZ -> allGames.sortedBy { it.displayName.lowercase() }
+            SortMode.ZA -> allGames.sortedByDescending { it.displayName.lowercase() }
+            SortMode.RECENT -> allGames.sortedWith(
+                compareByDescending<GameEntry> { lastPlayed[it.packageName] ?: Long.MIN_VALUE }
+                    .thenBy { it.displayName.lowercase() }
+            )
+        }
     }
 
 }
