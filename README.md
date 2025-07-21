@@ -1,10 +1,10 @@
-# ðŸŽ® Ribbon Launcher
+# 🎮 Ribbon Launcher
 
 Ribbon Launcher is a fullscreen, gamepad- and touch-friendly Android launcher that displays installed games in a horizontally scrolling ribbon. Inspired by the Xperia PLAY interface and built for modern Android devices, it's lightweight, immersive, and optimized for landscape use.
 
 ---
 
-## âœ¨ Features
+## ✔️ Features
 
 - Horizontal ribbon-style UI for launching installed games
 - Touch and controller (D-pad) navigation
@@ -17,7 +17,7 @@ Ribbon Launcher is a fullscreen, gamepad- and touch-friendly Android launcher th
 
 ---
 
-## ðŸ“¦ Package Name
+## 📦 Package Name
 
 ```
 com.retrobreeze.ribbonlauncher
@@ -25,13 +25,13 @@ com.retrobreeze.ribbonlauncher
 
 ---
 
-## ðŸ“± Screenshots
+## 📱 Screenshots
 
 *(To be added)*
 
 ---
 
-## ðŸ§  Architecture
+## 🧠 Architecture
 
 - **Jetpack Compose**: For all UI components
 - **ViewModel (MVVM)**: For clean state management
@@ -40,20 +40,20 @@ com.retrobreeze.ribbonlauncher
 
 ---
 
-## ðŸ“ Project Structure
+## 📂 Project Structure
 
 ```
 /app
-  â”œâ”€â”€ MainActivity.kt
-  â”œâ”€â”€ LauncherViewModel.kt
-  â”œâ”€â”€ GameEntry.kt
-  â”œâ”€â”€ GameCarousel.kt
-  â”œâ”€â”€ ui/theme/
+  ├── MainActivity.kt
+  ├── LauncherViewModel.kt
+  ├── GameEntry.kt
+  ├── GameCarousel.kt
+  └── ui/theme/
 ```
 
 ---
 
-## ðŸ§ª Development Setup
+## 🛠️ Development Setup
 
 1. Clone the repo:
    ```bash
@@ -67,7 +67,7 @@ com.retrobreeze.ribbonlauncher
 
 ---
 
-## ðŸš« Limitations (v0.1)
+## 🚫 Limitations (v0.1)
 
 - No folders or categories
 - No game info screen yet
@@ -76,6 +76,6 @@ com.retrobreeze.ribbonlauncher
 
 ---
 
-## ðŸ“‹ License
+## 📋 License
 
 MIT License. See [LICENSE](LICENSE) for details.
