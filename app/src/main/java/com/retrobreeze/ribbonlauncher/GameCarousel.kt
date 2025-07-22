@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.graphicsLayer
@@ -40,6 +41,7 @@ import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ArrowDirection
 import com.retrobreeze.ribbonlauncher.CarouselArrow
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 fun renderTextToBitmap(
     text: String,
@@ -152,8 +154,11 @@ fun GameCarousel(
             ) { page ->
                 val game = games[page]
                 val isSelected = pagerState.currentPage == page
+                val pageOffset = abs(pagerState.currentPage - page + pagerState.currentPageOffsetFraction)
+                val edgeScale = 1f - 0.15f * pageOffset.coerceIn(0f, 1f)
+                val baseSize = if (isSelected) itemSize * selectedScale else itemSize
                 val size by animateDpAsState(
-                    targetValue = if (isSelected) itemSize * selectedScale else itemSize,
+                    targetValue = baseSize * edgeScale,
                     label = "SizeAnimation"
                 )
                 val offset = animatables[game.packageName]?.value ?: 0f
@@ -257,6 +262,7 @@ fun ReflectiveGameIcon(
             contentDescription = contentDesc,
             modifier = Modifier
                 .size(iconSize)
+                .shadow(8.dp, RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp)),
             contentScale = ContentScale.Crop
         )
