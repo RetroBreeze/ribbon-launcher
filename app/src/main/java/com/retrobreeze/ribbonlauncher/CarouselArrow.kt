@@ -9,8 +9,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 
 enum class ArrowDirection { LEFT, RIGHT }
 
@@ -20,15 +19,15 @@ fun CarouselArrow(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    width: Dp = 48.dp
+    width: Dp = 24.dp,
+    height: Dp
 ) {
     val arrowModifier = modifier
         .clickable(enabled = enabled, onClick = onClick)
 
     Canvas(
         modifier = arrowModifier
-            .fillMaxHeight()
-            .width(width)
+            .size(width = width, height = height)
     ) {
         val path = Path()
         if (direction == ArrowDirection.LEFT) {
@@ -43,7 +42,7 @@ fun CarouselArrow(
         path.close()
         drawPath(
             path = path,
-            color = Color.White.copy(alpha = if (enabled) 0.5f else 0.15f),
+            color = Color.DarkGray.copy(alpha = if (enabled) 0.5f else 0.15f),
             style = Fill
         )
     }

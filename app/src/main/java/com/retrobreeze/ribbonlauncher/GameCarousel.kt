@@ -79,6 +79,8 @@ fun GameCarousel(
     val itemSize = 150.dp
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
+    val arrowHeight = itemSize * 0.5f
+    val arrowWidth = arrowHeight / 2
 
     val density = LocalDensity.current
     var currentText by remember { mutableStateOf(games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()) }
@@ -196,7 +198,9 @@ fun GameCarousel(
                 val target = (pagerState.currentPage - 4).coerceAtLeast(0)
                 coroutineScope.launch { pagerState.animateScrollToPage(target) }
             },
-            modifier = Modifier.align(Alignment.CenterStart)
+            modifier = Modifier.align(Alignment.CenterStart),
+            width = arrowWidth,
+            height = arrowHeight
         )
 
         CarouselArrow(
@@ -206,7 +210,9 @@ fun GameCarousel(
                 val target = (pagerState.currentPage + 4).coerceAtMost(games.lastIndex)
                 coroutineScope.launch { pagerState.animateScrollToPage(target) }
             },
-            modifier = Modifier.align(Alignment.CenterEnd)
+            modifier = Modifier.align(Alignment.CenterEnd),
+            width = arrowWidth,
+            height = arrowHeight
         )
 
         labelBitmap?.let {
