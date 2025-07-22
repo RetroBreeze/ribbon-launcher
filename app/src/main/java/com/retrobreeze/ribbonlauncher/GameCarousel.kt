@@ -152,8 +152,11 @@ fun GameCarousel(
             ) { page ->
                 val game = games[page]
                 val isSelected = pagerState.currentPage == page
-                val distanceFromCenter = abs(pagerState.currentPage + pagerState.currentPageOffsetFraction - page)
-                val scaleFactor = selectedScale - (selectedScale - 0.75f) * distanceFromCenter.coerceIn(0f, 1f)
+                val distanceFromCenter = abs(
+                    pagerState.currentPage + pagerState.currentPageOffsetFraction - page
+                ).coerceIn(0f, 1f)
+                val scaleWeight = 1f - distanceFromCenter * distanceFromCenter
+                val scaleFactor = 0.75f + (selectedScale - 0.75f) * scaleWeight
                 val size = itemSize * scaleFactor
                 val offset = animatables[game.packageName]?.value ?: 0f
 
