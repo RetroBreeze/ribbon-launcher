@@ -17,8 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -156,11 +154,7 @@ fun GameCarousel(
                 val isSelected = pagerState.currentPage == page
                 val distanceFromCenter = abs(pagerState.currentPage + pagerState.currentPageOffsetFraction - page)
                 val scaleFactor = selectedScale - (selectedScale - 0.75f) * distanceFromCenter.coerceIn(0f, 1f)
-                val size by animateDpAsState(
-                    targetValue = itemSize * scaleFactor,
-                    animationSpec = tween(durationMillis = 300),
-                    label = "SizeAnimation"
-                )
+                val size = itemSize * scaleFactor
                 val offset = animatables[game.packageName]?.value ?: 0f
 
                 Box(
