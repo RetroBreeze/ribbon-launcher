@@ -237,7 +237,7 @@ fun ReflectiveGameIcon(
                 .width(iconSize)
                 .drawWithCache {
                     val gradient = Brush.verticalGradient(
-                        colors = listOf(Color.White, Color.Transparent),
+                        colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
                         startY = 0f,
                         endY = size.height
                     )
