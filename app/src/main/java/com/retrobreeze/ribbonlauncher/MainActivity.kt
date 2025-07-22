@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import com.retrobreeze.ribbonlauncher.GameCarousel
 import com.retrobreeze.ribbonlauncher.SortButton
 import com.retrobreeze.ribbonlauncher.StatusTopBar
@@ -54,6 +55,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val games = viewModel.games
