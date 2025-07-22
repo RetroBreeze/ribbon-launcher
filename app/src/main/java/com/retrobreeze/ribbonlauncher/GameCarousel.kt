@@ -156,7 +156,7 @@ fun GameCarousel(
                     pagerState.currentPage + pagerState.currentPageOffsetFraction - page
                 ).coerceIn(0f, 1f)
                 val scaleWeight = 1f - distanceFromCenter * distanceFromCenter
-                val scaleFactor = 0.75f + (selectedScale - 0.75f) * scaleWeight
+                val scaleFactor = 0.6f + (selectedScale - 0.6f) * scaleWeight
                 val size = itemSize * scaleFactor
                 val offset = animatables[game.packageName]?.value ?: 0f
 
