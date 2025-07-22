@@ -37,6 +37,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.Density
 import com.retrobreeze.ribbonlauncher.model.GameEntry
+import com.retrobreeze.ribbonlauncher.ArrowDirection
+import com.retrobreeze.ribbonlauncher.CarouselArrow
 import kotlinx.coroutines.launch
 
 fun renderTextToBitmap(
@@ -77,6 +79,8 @@ fun GameCarousel(
     val itemSize = 150.dp
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
+    val arrowHeight = itemSize * 0.5f
+    val arrowWidth = arrowHeight / 2
 
     val density = LocalDensity.current
     var currentText by remember { mutableStateOf(games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()) }
@@ -184,6 +188,32 @@ fun GameCarousel(
             }
             }
         }
+        val canScrollLeft = pagerState.currentPage > 0
+        val canScrollRight = pagerState.currentPage < games.lastIndex
+
+        CarouselArrow(
+            direction = ArrowDirection.LEFT,
+            enabled = canScrollLeft,
+            onClick = {
+                val target = (pagerState.currentPage - 4).coerceAtLeast(0)
+                coroutineScope.launch { pagerState.animateScrollToPage(target) }
+            },
+            modifier = Modifier.align(Alignment.CenterStart),
+            width = arrowWidth,
+            height = arrowHeight
+        )
+
+        CarouselArrow(
+            direction = ArrowDirection.RIGHT,
+            enabled = canScrollRight,
+            onClick = {
+                val target = (pagerState.currentPage + 4).coerceAtMost(games.lastIndex)
+                coroutineScope.launch { pagerState.animateScrollToPage(target) }
+            },
+            modifier = Modifier.align(Alignment.CenterEnd),
+            width = arrowWidth,
+            height = arrowHeight
+        )
 
         labelBitmap?.let {
             Box(
