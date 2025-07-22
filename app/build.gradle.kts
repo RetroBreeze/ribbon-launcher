@@ -56,6 +56,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     // For ViewModel support in Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation("androidx.compose.ui:ui:1.8.3") // or whatever Compose BOM you’re using
+    implementation("androidx.compose.ui:ui")
 
     // For loading images like app icons
     implementation(libs.coil.compose)
