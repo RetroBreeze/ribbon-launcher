@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val games = viewModel.games
