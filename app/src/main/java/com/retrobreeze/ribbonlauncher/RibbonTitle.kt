@@ -15,8 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -27,6 +30,7 @@ fun RibbonTitle(
 ) {
     var editing by remember { mutableStateOf(false) }
     var localTitle by remember { mutableStateOf(TextFieldValue(title)) }
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(title) {
         if (!editing) {
@@ -34,15 +38,20 @@ fun RibbonTitle(
         }
     }
 
+    LaunchedEffect(editing) {
+        if (editing) focusRequester.requestFocus()
+    }
+
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (editing) {
             BasicTextField(
                 value = localTitle,
                 onValueChange = { localTitle = it },
-                textStyle = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onBackground),
+                textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
                 singleLine = true,
                 modifier = Modifier
                     .heightIn(min = 32.dp)
+                    .focusRequester(focusRequester)
                     .onFocusChanged { if (!it.isFocused) { editing = false; onTitleChange(localTitle.text) } }
             )
             Spacer(Modifier.width(4.dp))
@@ -53,7 +62,7 @@ fun RibbonTitle(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
+                color = Color.White
             )
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = { editing = true }) {

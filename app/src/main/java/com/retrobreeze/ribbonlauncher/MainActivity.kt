@@ -115,7 +115,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
             Row(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(start = 8.dp, top = 36.dp),
+                    .padding(start = 24.dp, top = 36.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RibbonTitle(
