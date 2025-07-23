@@ -5,11 +5,9 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.indication
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ripple
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.runtime.Composable
@@ -35,12 +33,6 @@ fun NavigationBottomBar(
         )
     }
 
-    val colorScheme = MaterialTheme.colorScheme
-    val buttonGradient = remember(isDark, colorScheme) {
-        val start = if (isDark) colorScheme.primaryContainer else colorScheme.primary
-        val end = if (isDark) colorScheme.primary else colorScheme.primaryContainer
-        Brush.verticalGradient(listOf(start, end))
-    }
 
     Box(
         modifier = modifier
@@ -58,7 +50,6 @@ fun NavigationBottomBar(
                 modifier = Modifier
                     .width(64.dp)
                     .fillMaxHeight()
-                    .background(buttonGradient, RoundedCornerShape(0.dp))
                     .indication(interactionSource, ripple())
                     .pointerInput(onRightClick) {
                         detectTapGestures(onPress = {
