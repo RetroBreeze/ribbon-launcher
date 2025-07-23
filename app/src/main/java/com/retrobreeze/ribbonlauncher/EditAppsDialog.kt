@@ -55,7 +55,7 @@ fun EditAppsDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .widthIn(max = 560.dp),
+                .widthIn(max = 400.dp),
             shape = MaterialTheme.shapes.medium
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -63,20 +63,39 @@ fun EditAppsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = { localSelection.clear() }) { Text("none") }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = localSelection.isEmpty(),
+                            onCheckedChange = { checked -> if (checked) localSelection.clear() }
+                        )
+                        Text("none")
+                    }
                     Spacer(Modifier.width(8.dp))
-                    TextButton(onClick = { localSelection = allApps.map { it.packageName }.toMutableSet() }) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = localSelection.size == allApps.size,
+                            onCheckedChange = { checked ->
+                                localSelection = if (checked) {
+                                    allApps.map { it.packageName }.toMutableSet()
+                                } else {
+                                    mutableSetOf()
+                                }
+                            }
+                        )
                         Text("All")
                     }
+                    Spacer(Modifier.width(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = allGamesSelected,
+                            onCheckedChange = { toggleSelectGames(it) }
+                        )
+                        Text("Games")
+                    }
                     Spacer(Modifier.weight(1f))
-                    Checkbox(
-                        checked = allGamesSelected,
-                        onCheckedChange = { toggleSelectGames(it) }
-                    )
-                    Text(
-                        text = "Games",
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+                    TextButton(onClick = { onConfirm(localSelection.toSet()); onDismiss() }) {
+                        Text("OK")
+                    }
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -113,18 +132,6 @@ fun EditAppsDialog(
                     }
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) { Text("Cancel") }
-                    Spacer(Modifier.width(8.dp))
-                    TextButton(onClick = { onConfirm(localSelection.toSet()); onDismiss() }) {
-                        Text("OK")
-                    }
-                }
             }
         }
     }
