@@ -2,6 +2,8 @@ package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
@@ -54,7 +56,7 @@ fun EditAppsDialog(
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
+                .padding(WindowInsets.systemBars.asPaddingValues())
                 .widthIn(max = 400.dp),
             shape = MaterialTheme.shapes.medium
         ) {
