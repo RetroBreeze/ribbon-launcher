@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.pager.rememberPagerState
 import com.retrobreeze.ribbonlauncher.GameCarousel
 import com.retrobreeze.ribbonlauncher.SortButton
+import com.retrobreeze.ribbonlauncher.RibbonTitle
 import com.retrobreeze.ribbonlauncher.StatusTopBar
 import com.retrobreeze.ribbonlauncher.NavigationBottomBar
 import com.retrobreeze.ribbonlauncher.EditAppsDialog
@@ -111,15 +112,22 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 onConfirm = { packages -> viewModel.updateEnabledPackages(packages) },
                 onDismiss = { showEditDialog = false }
             )
-            SortButton(
-                sortMode = sortMode,
-                onClick = {
-                    viewModel.cycleSortMode()
-                },
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(start = 8.dp, top = 36.dp)
-            )
+                    .padding(start = 24.dp, top = 36.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RibbonTitle(
+                    title = viewModel.ribbonTitle,
+                    onTitleChange = { viewModel.updateRibbonTitle(it) }
+                )
+                Spacer(Modifier.width(12.dp))
+                SortButton(
+                    sortMode = sortMode,
+                    onClick = { viewModel.cycleSortMode() }
+                )
+            }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
             NavigationBottomBar(
                 modifier = Modifier.align(Alignment.BottomCenter),
