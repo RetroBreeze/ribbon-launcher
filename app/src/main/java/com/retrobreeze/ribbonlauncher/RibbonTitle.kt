@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -111,16 +110,7 @@ fun RibbonTitle(
                     editing = true
                 }
             )
-            Spacer(Modifier.width(4.dp))
-            IconButton(
-                onClick = {
-                    localTitle = TextFieldValue(title, TextRange(0, title.length))
-                    editing = true
-                },
-                colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent)
-            ) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-            }
+            // Tapping the title itself toggles editing; no extra edit button
         }
     }
 }
