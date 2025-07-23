@@ -17,6 +17,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_LAST_PLAYED_PREFIX = "lp_"
         private const val KEY_SELECTED_GAME = "selected_game"
         private const val KEY_ENABLED_PACKAGES = "enabled_packages"
+        private const val KEY_RIBBON_TITLE = "ribbon_title"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -40,6 +41,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     var selectedGamePackage by mutableStateOf<String?>(null)
         private set
 
+    var ribbonTitle by mutableStateOf("Games")
+        private set
+
     init {
         loadPreferences()
         loadInstalledGames()
@@ -52,6 +56,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         } catch (_: IllegalArgumentException) {
             SortMode.AZ
         }
+
+        ribbonTitle = prefs.getString(KEY_RIBBON_TITLE, "Games") ?: "Games"
 
         selectedGamePackage = prefs.getString(KEY_SELECTED_GAME, null)
 
@@ -158,6 +164,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         val now = System.currentTimeMillis()
         lastPlayed[game.packageName] = now
         prefs.edit().putLong(KEY_LAST_PLAYED_PREFIX + game.packageName, now).apply()
+    }
+
+    fun updateRibbonTitle(title: String) {
+        ribbonTitle = title
+        prefs.edit().putString(KEY_RIBBON_TITLE, title).apply()
     }
 
     fun refreshSort() {
