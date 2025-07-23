@@ -185,7 +185,13 @@ fun GameCarousel(
                                 .width(size)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(Color.Gray.copy(alpha = 0.3f))
-                                .clickable { onEdit() },
+                                .clickable {
+                                    if (isSelected) {
+                                        onEdit()
+                                    } else {
+                                        coroutineScope.launch { pagerState.animateScrollToPage(page) }
+                                    }
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
