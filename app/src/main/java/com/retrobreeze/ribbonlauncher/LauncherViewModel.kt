@@ -172,6 +172,12 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         sortGames()
     }
 
+    fun setEnabledPackages(packages: Set<String>) {
+        enabledPackages = packages.toSet()
+        prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        sortGames()
+    }
+
     fun selectAll() {
         enabledPackages = (allGames + apps).map { it.packageName }.toSet()
         prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
@@ -184,8 +190,22 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         sortGames()
     }
 
+    fun selectGames() {
+        val gamePackages = allGames.map { it.packageName }
+        enabledPackages = enabledPackages.toMutableSet().apply {
+            clear()
+            addAll(gamePackages)
+        }
+        prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        sortGames()
+    }
+
     fun getAllInstalledApps(): List<GameEntry> {
         return (allGames + apps).sortedBy { it.displayName.lowercase() }
+    }
+
+    fun getInstalledGames(): List<GameEntry> {
+        return allGames
     }
 
     private fun sortGames() {

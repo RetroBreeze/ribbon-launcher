@@ -10,7 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,28 +22,59 @@ import com.retrobreeze.ribbonlauncher.model.GameEntry
 fun EditAppsDialog(
     show: Boolean,
     allApps: List<GameEntry>,
+    games: List<GameEntry>,
     selectedPackages: Set<String>,
-    onPackageChecked: (String, Boolean) -> Unit,
-    onSelectAll: () -> Unit,
-    onSelectNone: () -> Unit,
+    onConfirm: (Set<String>) -> Unit,
     onDismiss: () -> Unit
 ) {
     if (!show) return
 
+    var localSelection by remember { mutableStateOf(selectedPackages.toMutableSet()) }
+    LaunchedEffect(show) {
+        if (show) {
+            localSelection = selectedPackages.toMutableSet()
+        }
+    }
+
+    val gamePackages = remember(games) { games.map { it.packageName } }
+    val allGamesSelected = gamePackages.all { localSelection.contains(it) }
+
+    fun toggleSelectGames(checked: Boolean) {
+        localSelection = if (checked) {
+            (localSelection + gamePackages).toMutableSet()
+        } else {
+            localSelection.toMutableSet().apply { removeAll(gamePackages) }
+        }
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = MaterialTheme.shapes.medium) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onSelectAll) { Text("Select All") }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = allGamesSelected,
+                        onCheckedChange = { toggleSelectGames(it) }
+                    )
+                    Text(
+                        text = "Select games",
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                    Spacer(Modifier.weight(1f))
+                    TextButton(onClick = { localSelection = allApps.map { it.packageName }.toMutableSet() }) {
+                        Text("Select All")
+                    }
                     Spacer(Modifier.width(8.dp))
-                    TextButton(onClick = onSelectNone) { Text("Select None") }
+                    TextButton(onClick = { localSelection.clear() }) { Text("Select None") }
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
                     items(allApps) { app ->
-                        val checked = app.packageName in selectedPackages
+                        val checked = app.packageName in localSelection
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -52,7 +83,11 @@ fun EditAppsDialog(
                         ) {
                             Checkbox(
                                 checked = checked,
-                                onCheckedChange = { onPackageChecked(app.packageName, it) }
+                                onCheckedChange = { isChecked ->
+                                    localSelection = localSelection.toMutableSet().apply {
+                                        if (isChecked) add(app.packageName) else remove(app.packageName)
+                                    }
+                                }
                             )
                             Spacer(Modifier.width(8.dp))
                             Image(
@@ -72,10 +107,13 @@ fun EditAppsDialog(
                         .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) { Text("Done") }
+                    TextButton(onClick = onDismiss) { Text("Cancel") }
+                    Spacer(Modifier.width(8.dp))
+                    TextButton(onClick = { onConfirm(localSelection.toSet()); onDismiss() }) {
+                        Text("OK")
+                    }
                 }
             }
         }
     }
 }
-

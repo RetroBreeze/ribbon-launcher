@@ -106,10 +106,9 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
             EditAppsDialog(
                 show = showEditDialog,
                 allApps = viewModel.getAllInstalledApps(),
+                games = viewModel.getInstalledGames(),
                 selectedPackages = viewModel.enabledPackages,
-                onPackageChecked = { pkg, checked -> viewModel.setPackageEnabled(pkg, checked) },
-                onSelectAll = { viewModel.selectAll() },
-                onSelectNone = { viewModel.selectNone() },
+                onConfirm = { packages -> viewModel.setEnabledPackages(packages) },
                 onDismiss = { showEditDialog = false }
             )
             SortButton(
