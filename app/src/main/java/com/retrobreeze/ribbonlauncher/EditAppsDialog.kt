@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.rememberAsyncImagePainter
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 
@@ -47,32 +48,43 @@ fun EditAppsDialog(
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(shape = MaterialTheme.shapes.medium) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 560.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    TextButton(onClick = { localSelection.clear() }) { Text("none") }
+                    Spacer(Modifier.width(8.dp))
+                    TextButton(onClick = { localSelection = allApps.map { it.packageName }.toMutableSet() }) {
+                        Text("All")
+                    }
+                    Spacer(Modifier.weight(1f))
                     Checkbox(
                         checked = allGamesSelected,
                         onCheckedChange = { toggleSelectGames(it) }
                     )
                     Text(
-                        text = "Select games",
+                        text = "Games",
                         modifier = Modifier.padding(start = 4.dp)
                     )
-                    Spacer(Modifier.weight(1f))
-                    TextButton(onClick = { localSelection = allApps.map { it.packageName }.toMutableSet() }) {
-                        Text("Select All")
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    TextButton(onClick = { localSelection.clear() }) { Text("Select None") }
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
+                LazyColumn(modifier = Modifier
+                    .heightIn(max = 400.dp)
+                    .fillMaxWidth()
+                ) {
                     items(allApps) { app ->
                         val checked = app.packageName in localSelection
                         Row(
