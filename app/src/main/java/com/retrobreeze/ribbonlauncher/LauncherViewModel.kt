@@ -16,6 +16,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_SORT_MODE = "sort_mode"
         private const val KEY_LAST_PLAYED_PREFIX = "lp_"
         private const val KEY_SELECTED_GAME = "selected_game"
+        private const val KEY_ENABLED_PACKAGES = "enabled_packages"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -26,6 +27,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     var apps by mutableStateOf<List<GameEntry>>(emptyList())
+        private set
+
+    var enabledPackages by mutableStateOf<Set<String>>(emptySet())
         private set
 
     var sortMode by mutableStateOf(SortMode.AZ)
@@ -50,6 +54,12 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
 
         selectedGamePackage = prefs.getString(KEY_SELECTED_GAME, null)
+
+        enabledPackages = if (prefs.contains(KEY_ENABLED_PACKAGES)) {
+            prefs.getStringSet(KEY_ENABLED_PACKAGES, emptySet())?.toSet() ?: emptySet()
+        } else {
+            emptySet()
+        }
 
         prefs.all.forEach { (key, value) ->
             if (key.startsWith(KEY_LAST_PLAYED_PREFIX)) {
@@ -124,6 +134,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     icon = pm.getApplicationIcon(appInfo)
                 )
             }
+
+        sortGames()
     }
 
     fun cycleSortMode() {
@@ -152,11 +164,63 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         sortGames()
     }
 
+    fun setPackageEnabled(packageName: String, enabled: Boolean) {
+        enabledPackages = enabledPackages.toMutableSet().apply {
+            if (enabled) add(packageName) else remove(packageName)
+        }
+        prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        sortGames()
+    }
+
+    fun updateEnabledPackages(packages: Set<String>) {
+        enabledPackages = packages.toSet()
+        prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        sortGames()
+    }
+
+    fun selectAll() {
+        enabledPackages = (allGames + apps).map { it.packageName }.toSet()
+        prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        sortGames()
+    }
+
+    fun selectNone() {
+        enabledPackages = emptySet()
+        prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        sortGames()
+    }
+
+    fun selectGames() {
+        val gamePackages = allGames.map { it.packageName }
+        enabledPackages = enabledPackages.toMutableSet().apply {
+            clear()
+            addAll(gamePackages)
+        }
+        prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        sortGames()
+    }
+
+    fun getAllInstalledApps(): List<GameEntry> {
+        return (allGames + apps).sortedBy { it.displayName.lowercase() }
+    }
+
+    fun getInstalledGames(): List<GameEntry> {
+        return allGames
+    }
+
     private fun sortGames() {
+        if (!prefs.contains(KEY_ENABLED_PACKAGES) && enabledPackages.isEmpty()) {
+            enabledPackages = allGames.map { it.packageName }.toSet()
+            prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
+        }
+
+        val allEntries = (allGames + apps)
+        val selectedEntries = allEntries.filter { enabledPackages.contains(it.packageName) }
+
         games = when (sortMode) {
-            SortMode.AZ -> allGames.sortedBy { it.displayName.lowercase() }
-            SortMode.ZA -> allGames.sortedByDescending { it.displayName.lowercase() }
-            SortMode.RECENT -> allGames.sortedWith(
+            SortMode.AZ -> selectedEntries.sortedBy { it.displayName.lowercase() }
+            SortMode.ZA -> selectedEntries.sortedByDescending { it.displayName.lowercase() }
+            SortMode.RECENT -> selectedEntries.sortedWith(
                 compareByDescending<GameEntry> { lastPlayed[it.packageName] ?: Long.MIN_VALUE }
                     .thenBy { it.displayName.lowercase() }
             )
