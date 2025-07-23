@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ripple
-import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.runtime.Composable
@@ -34,9 +33,10 @@ fun NavigationBottomBar(
             },
         contentAlignment = Alignment.Center
     ) {
-        Icon(
+        ReflectiveVectorIcon(
             imageVector = Icons.Filled.Apps,
-            contentDescription = null
+            contentDesc = null,
+            iconSize = 32.dp
         )
     }
 }
