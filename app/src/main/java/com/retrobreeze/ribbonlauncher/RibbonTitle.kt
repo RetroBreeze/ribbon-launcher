@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -37,6 +39,7 @@ fun RibbonTitle(
     val focusRequester = remember { FocusRequester() }
     var hadFocus by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(title) {
         if (!editing) {
@@ -45,7 +48,10 @@ fun RibbonTitle(
     }
 
     LaunchedEffect(editing) {
-        if (editing) focusRequester.requestFocus()
+        if (editing) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
     }
 
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
@@ -77,6 +83,7 @@ fun RibbonTitle(
                     .onFocusChanged { state ->
                         if (state.isFocused) {
                             hadFocus = true
+                            localTitle = localTitle.copy(selection = TextRange(0, localTitle.text.length))
                         } else if (hadFocus) {
                             hadFocus = false
                             editing = false
@@ -99,7 +106,10 @@ fun RibbonTitle(
                 color = Color.White
             )
             Spacer(Modifier.width(4.dp))
-            IconButton(onClick = { editing = true }) {
+            IconButton(onClick = {
+                localTitle = TextFieldValue(title, TextRange(0, title.length))
+                editing = true
+            }) {
                 Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
             }
         }
