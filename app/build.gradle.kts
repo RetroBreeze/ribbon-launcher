@@ -32,9 +32,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -56,8 +53,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     // For ViewModel support in Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation("androidx.compose.ui:ui:1.8.3") // or whatever Compose BOM you’re using
     implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.foundation:foundation")
 
     // For loading images like app icons
     implementation(libs.coil.compose)
