@@ -23,6 +23,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import com.retrobreeze.ribbonlauncher.GameCarousel
 import com.retrobreeze.ribbonlauncher.SortButton
 import com.retrobreeze.ribbonlauncher.RibbonTitle
@@ -112,16 +114,24 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 onConfirm = { packages -> viewModel.updateEnabledPackages(packages) },
                 onDismiss = { showEditDialog = false }
             )
-            Column(
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 24.dp, top = 36.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 RibbonTitle(
                     title = viewModel.ribbonTitle,
                     onTitleChange = { viewModel.updateRibbonTitle(it) }
                 )
-                Spacer(Modifier.height(2.dp))
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    Modifier
+                        .height(24.dp)
+                        .width(1.dp)
+                        .background(Color.White.copy(alpha = 0.3f))
+                )
+                Spacer(Modifier.width(8.dp))
                 SortButton(
                     sortMode = sortMode,
                     onClick = { viewModel.cycleSortMode() }
