@@ -172,7 +172,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         sortGames()
     }
 
-    fun setEnabledPackages(packages: Set<String>) {
+    fun updateEnabledPackages(packages: Set<String>) {
         enabledPackages = packages.toSet()
         prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
         sortGames()
