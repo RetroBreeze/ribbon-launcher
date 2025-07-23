@@ -78,7 +78,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 32.dp, bottom = 64.dp),
+                    .padding(vertical = 32.dp),
                 contentAlignment = Alignment.Center
             ) {
                 GameCarousel(
@@ -130,7 +130,9 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
             NavigationBottomBar(
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 24.dp, bottom = 24.dp),
                 onRightClick = { showDrawer = !showDrawer }
             )
         }
