@@ -55,7 +55,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
         selectedGamePackage = prefs.getString(KEY_SELECTED_GAME, null)
 
-        enabledPackages = prefs.getStringSet(KEY_ENABLED_PACKAGES, emptySet()) ?: emptySet()
+        enabledPackages = if (prefs.contains(KEY_ENABLED_PACKAGES)) {
+            prefs.getStringSet(KEY_ENABLED_PACKAGES, emptySet())?.toSet() ?: emptySet()
+        } else {
+            emptySet()
+        }
 
         prefs.all.forEach { (key, value) ->
             if (key.startsWith(KEY_LAST_PLAYED_PREFIX)) {
@@ -185,7 +189,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun sortGames() {
-        if (enabledPackages.isEmpty()) {
+        if (!prefs.contains(KEY_ENABLED_PACKAGES) && enabledPackages.isEmpty()) {
             enabledPackages = allGames.map { it.packageName }.toSet()
             prefs.edit().putStringSet(KEY_ENABLED_PACKAGES, enabledPackages).apply()
         }
