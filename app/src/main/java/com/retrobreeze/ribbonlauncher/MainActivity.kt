@@ -112,17 +112,16 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 onConfirm = { packages -> viewModel.updateEnabledPackages(packages) },
                 onDismiss = { showEditDialog = false }
             )
-            Row(
+            Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 24.dp, top = 36.dp),
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 RibbonTitle(
                     title = viewModel.ribbonTitle,
                     onTitleChange = { viewModel.updateRibbonTitle(it) }
                 )
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.height(12.dp))
                 SortButton(
                     sortMode = sortMode,
                     onClick = { viewModel.cycleSortMode() }
