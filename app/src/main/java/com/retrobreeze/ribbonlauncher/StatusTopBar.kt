@@ -11,7 +11,6 @@ import android.content.IntentFilter
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -57,19 +55,13 @@ fun StatusTopBar(modifier: Modifier = Modifier) {
     val batteryState by rememberBatteryStatus()
     val currentTime by rememberCurrentTime()
 
-    val isDark = isSystemInDarkTheme()
-    val gradient = remember(isDark) {
-        val tint = if (isDark) Color.White else Color.Black
-        Brush.verticalGradient(
-            colors = listOf(Color.Transparent, tint.copy(alpha = if (isDark) 0.12f else 0.18f))
-        )
-    }
+    // Remove gradient/tint so the status bar remains transparent
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(32.dp)
-            .background(gradient)
+            .background(Color.Transparent)
             .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Text(
