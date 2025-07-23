@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardActions
+import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
@@ -31,6 +35,8 @@ fun RibbonTitle(
     var editing by remember { mutableStateOf(false) }
     var localTitle by remember { mutableStateOf(TextFieldValue(title)) }
     val focusRequester = remember { FocusRequester() }
+    var hadFocus by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(title) {
         if (!editing) {
@@ -49,13 +55,31 @@ fun RibbonTitle(
                 onValueChange = { localTitle = it },
                 textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
                 singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                    editing = false
+                    onTitleChange(localTitle.text)
+                }),
                 modifier = Modifier
                     .heightIn(min = 32.dp)
                     .focusRequester(focusRequester)
-                    .onFocusChanged { if (!it.isFocused) { editing = false; onTitleChange(localTitle.text) } }
+                    .onFocusChanged { state ->
+                        if (state.isFocused) {
+                            hadFocus = true
+                        } else if (hadFocus) {
+                            hadFocus = false
+                            editing = false
+                            onTitleChange(localTitle.text)
+                        }
+                    }
             )
             Spacer(Modifier.width(4.dp))
-            IconButton(onClick = { editing = false; onTitleChange(localTitle.text) }) {
+            IconButton(onClick = {
+                focusManager.clearFocus()
+                editing = false
+                onTitleChange(localTitle.text)
+            }) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = "Done")
             }
         } else {
