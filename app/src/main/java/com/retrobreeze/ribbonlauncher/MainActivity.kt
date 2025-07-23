@@ -121,7 +121,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     title = viewModel.ribbonTitle,
                     onTitleChange = { viewModel.updateRibbonTitle(it) }
                 )
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
                 SortButton(
                     sortMode = sortMode,
                     onClick = { viewModel.cycleSortMode() }
