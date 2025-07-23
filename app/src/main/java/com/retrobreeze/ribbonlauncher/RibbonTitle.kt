@@ -52,7 +52,17 @@ fun RibbonTitle(
         if (editing) {
             BasicTextField(
                 value = localTitle,
-                onValueChange = { localTitle = it },
+                onValueChange = { value ->
+                    if ("\n" in value.text) {
+                        val trimmed = value.text.replace("\n", "")
+                        localTitle = value.copy(text = trimmed)
+                        focusManager.clearFocus()
+                        editing = false
+                        onTitleChange(trimmed)
+                    } else {
+                        localTitle = value
+                    }
+                },
                 textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
