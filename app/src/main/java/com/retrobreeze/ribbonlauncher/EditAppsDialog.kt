@@ -69,7 +69,7 @@ fun EditAppsDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
                             checked = localSelection.isEmpty(),
-                            onCheckedChange = { checked -> if (checked) localSelection.clear() }
+                            onCheckedChange = { checked -> if (checked) localSelection = mutableSetOf() }
                         )
                         Text("none")
                     }
