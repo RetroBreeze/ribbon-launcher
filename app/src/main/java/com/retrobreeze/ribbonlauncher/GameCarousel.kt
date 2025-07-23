@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -72,7 +75,8 @@ fun GameCarousel(
     games: List<GameEntry>,
     pagerState: PagerState,
     selectedPackageName: String?,
-    onLaunch: (GameEntry) -> Unit
+    onLaunch: (GameEntry) -> Unit,
+    onEdit: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val itemSpacing = 12.dp
@@ -83,7 +87,11 @@ fun GameCarousel(
     val arrowWidth = arrowHeight / 2
 
     val density = LocalDensity.current
-    var currentText by remember { mutableStateOf(games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()) }
+    var currentText by remember {
+        mutableStateOf(
+            if (pagerState.currentPage == games.size) "Edit" else games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()
+        )
+    }
     var labelBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var alpha by remember { mutableStateOf(1f) }
 
@@ -93,7 +101,11 @@ fun GameCarousel(
     )
 
     LaunchedEffect(pagerState.currentPage) {
-        val newText = games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()
+        val newText = if (pagerState.currentPage == games.size) {
+            "Edit"
+        } else {
+            games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()
+        }
         if (newText != currentText) {
             alpha = 0f
             kotlinx.coroutines.delay(150)
@@ -110,6 +122,7 @@ fun GameCarousel(
 
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
+    val totalPages = games.size + 1
 
     LaunchedEffect(games) {
         val itemWidthPx = with(density) { (maxPageWidth + itemSpacing).toPx() }
@@ -148,48 +161,64 @@ fun GameCarousel(
                     state = pagerState,
                     pagerSnapDistance = PagerSnapDistance.atMost(1)
                 ),
-                key = { index -> games[index].packageName }
+                key = { index -> if (index < games.size) games[index].packageName else "edit_button" }
             ) { page ->
-                val game = games[page]
+                val isEditPage = page == games.size
                 val isSelected = pagerState.currentPage == page
                 val size by animateDpAsState(
                     targetValue = if (isSelected) itemSize * selectedScale else itemSize,
                     label = "SizeAnimation"
                 )
-                val offset = animatables[game.packageName]?.value ?: 0f
+
+                val offset = if (!isEditPage) animatables[games[page].packageName]?.value ?: 0f else 0f
 
                 Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer { translationX = offset },
-                contentAlignment = Alignment.Center
-                ) {
-                Box(
                     modifier = Modifier
-                        .height(size + (size * 0.25f))
-                        .width(size)
-                        .clickable {
-                            if (isSelected) {
-                                onLaunch(game)
-                            } else {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(page)
-                                }
-                            }
-                        },
+                        .fillMaxWidth()
+                        .graphicsLayer { translationX = offset },
                     contentAlignment = Alignment.Center
                 ) {
-                    ReflectiveGameIcon(
-                        icon = game.icon,
-                        contentDesc = game.displayName,
-                        iconSize = size
-                    )
+                    if (isEditPage) {
+                        Box(
+                            modifier = Modifier
+                                .height(size + (size * 0.25f))
+                                .width(size)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color.Gray.copy(alpha = 0.3f))
+                                .clickable { onEdit() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                        }
+                    } else {
+                        val game = games[page]
+                        Box(
+                            modifier = Modifier
+                                .height(size + (size * 0.25f))
+                                .width(size)
+                                .clickable {
+                                    if (isSelected) {
+                                        onLaunch(game)
+                                    } else {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(page)
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ReflectiveGameIcon(
+                                icon = game.icon,
+                                contentDesc = game.displayName,
+                                iconSize = size
+                            )
+                        }
+                    }
                 }
-            }
             }
         }
         val canScrollLeft = pagerState.currentPage > 0
-        val canScrollRight = pagerState.currentPage < games.lastIndex
+        val canScrollRight = pagerState.currentPage < totalPages - 1
 
         CarouselArrow(
             direction = ArrowDirection.LEFT,
@@ -207,7 +236,7 @@ fun GameCarousel(
             direction = ArrowDirection.RIGHT,
             enabled = canScrollRight,
             onClick = {
-                val target = (pagerState.currentPage + 4).coerceAtMost(games.lastIndex)
+                val target = (pagerState.currentPage + 4).coerceAtMost(totalPages - 1)
                 coroutineScope.launch { pagerState.animateScrollToPage(target) }
             },
             modifier = Modifier.align(Alignment.CenterEnd),

@@ -27,6 +27,7 @@ import com.retrobreeze.ribbonlauncher.GameCarousel
 import com.retrobreeze.ribbonlauncher.SortButton
 import com.retrobreeze.ribbonlauncher.StatusTopBar
 import com.retrobreeze.ribbonlauncher.NavigationBottomBar
+import com.retrobreeze.ribbonlauncher.EditAppsDialog
 import com.retrobreeze.ribbonlauncher.ui.background.AnimatedBackground
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
 
@@ -62,7 +63,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val apps = viewModel.apps
     val context = LocalContext.current
     var showDrawer by remember { mutableStateOf(false) }
-    val pagerState = rememberPagerState(initialPage = 0) { games.size }
+    var showEditDialog by remember { mutableStateOf(false) }
+    val pagerState = rememberPagerState(initialPage = 0) { games.size + 1 }
 
     LaunchedEffect(pagerState.currentPage, games) {
         val pkg = games.getOrNull(pagerState.currentPage)?.packageName
@@ -82,22 +84,33 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     games = games,
                     pagerState = pagerState,
                     selectedPackageName = viewModel.selectedGamePackage,
-                ) { game ->
-                    val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
-                    if (intent != null) {
-                        context.startActivity(intent)
-                    } else {
-                        val uri = Uri.parse("https://play.google.com/store/apps/details?id=${game.packageName}")
-                        context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                    }
-                    viewModel.recordLaunch(game)
-                }
+                    onLaunch = { game ->
+                        val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
+                        if (intent != null) {
+                            context.startActivity(intent)
+                        } else {
+                            val uri = Uri.parse("https://play.google.com/store/apps/details?id=${game.packageName}")
+                            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                        }
+                        viewModel.recordLaunch(game)
+                    },
+                    onEdit = { showEditDialog = true }
+                )
             }
             AppDrawerOverlay(
                 apps = apps,
                 showDrawer = showDrawer,
                 onDismiss = { showDrawer = false },
                 modifier = Modifier.align(Alignment.Center)
+            )
+            EditAppsDialog(
+                show = showEditDialog,
+                allApps = viewModel.getAllInstalledApps(),
+                selectedPackages = viewModel.enabledPackages,
+                onPackageChecked = { pkg, checked -> viewModel.setPackageEnabled(pkg, checked) },
+                onSelectAll = { viewModel.selectAll() },
+                onSelectNone = { viewModel.selectNone() },
+                onDismiss = { showEditDialog = false }
             )
             SortButton(
                 sortMode = sortMode,
