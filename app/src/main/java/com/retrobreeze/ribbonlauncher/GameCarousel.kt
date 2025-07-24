@@ -77,6 +77,7 @@ fun GameCarousel(
     pagerState: PagerState,
     selectedPackageName: String?,
     iconScale: Float,
+    showLabels: Boolean = true,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
@@ -122,7 +123,7 @@ fun GameCarousel(
         )
     }
     var labelBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    var alpha by remember { mutableStateOf(1f) }
+    var alpha by remember { mutableStateOf(if (showLabels) 1f else 0f) }
 
     val animatedAlpha by animateFloatAsState(
         targetValue = alpha,
@@ -140,9 +141,20 @@ fun GameCarousel(
             kotlinx.coroutines.delay(150)
             currentText = newText
             labelBitmap = renderTextToBitmap(currentText, 32.dp, density)
-            alpha = 1f
+            if (showLabels) alpha = 1f
         } else if (labelBitmap == null) {
             labelBitmap = renderTextToBitmap(text = currentText, heightDp = 32.dp, density = density)
+        }
+    }
+
+    LaunchedEffect(showLabels) {
+        if (showLabels) {
+            if (labelBitmap == null) {
+                labelBitmap = renderTextToBitmap(currentText, 32.dp, density)
+            }
+            alpha = 1f
+        } else {
+            alpha = 0f
         }
     }
 
