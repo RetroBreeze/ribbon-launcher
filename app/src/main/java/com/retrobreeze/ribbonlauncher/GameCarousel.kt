@@ -272,8 +272,7 @@ fun GameCarousel(
                             ReflectiveGameIcon(
                                 icon = game.icon,
                                 contentDesc = game.displayName,
-                                iconSize = size,
-                                showReflection = !isResizing
+                                iconSize = size
                             )
                         }
                     }
@@ -354,43 +353,38 @@ fun ReflectiveGameIcon(
             contentScale = ContentScale.Crop
         )
 
-        val reflectionAlpha by animateFloatAsState(
-            targetValue = if (showReflection) 1f else 0f,
-            animationSpec = tween(durationMillis = 150),
-            label = "reflectionAlpha"
-        )
-
-        Box(
-            modifier = Modifier
-                .height(iconSize * 0.25f)
-                .width(iconSize)
-                .alpha(reflectionAlpha)
-                .clip(RoundedCornerShape(iconSize * 0.08f))
-                .drawWithCache {
-                    val gradient = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
-                        startY = 0f,
-                        endY = size.height
-                    )
-                    onDrawWithContent {
-                        with(drawContext.canvas) {
-                            saveLayer(bounds = size.toRect(), paint = Paint())
-                            drawContent()
-                            drawRect(gradient, blendMode = BlendMode.DstIn)
-                            restore()
+        if (showReflection) {
+            Box(
+                modifier = Modifier
+                    .height(iconSize * 0.25f)
+                    .width(iconSize)
+                    .clip(RoundedCornerShape(iconSize * 0.08f))
+                    .drawWithCache {
+                        val gradient = Brush.verticalGradient(
+                            colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
+                            startY = 0f,
+                            endY = size.height
+                        )
+                        onDrawWithContent {
+                            with(drawContext.canvas) {
+                                saveLayer(bounds = size.toRect(), paint = Paint())
+                                drawContent()
+                                drawRect(gradient, blendMode = BlendMode.DstIn)
+                                restore()
+                            }
                         }
                     }
-                }
-        ) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer { scaleY = -1f },
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.BottomCenter
-            )
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer { scaleY = -1f },
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.BottomCenter
+                )
+            }
         }
     }
 }
