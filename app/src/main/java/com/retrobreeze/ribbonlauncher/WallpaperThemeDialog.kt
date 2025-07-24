@@ -11,11 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.retrobreeze.ribbonlauncher.ui.background.WallpaperTheme
+import com.retrobreeze.ribbonlauncher.util.contrastingColor
 
 @Composable
 fun WallpaperThemeDialog(
@@ -30,10 +32,14 @@ fun WallpaperThemeDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        val contentColor = surfaceColor.contrastingColor()
         Surface(
             modifier = Modifier
                 .padding(16.dp)
-                .widthIn(max = 400.dp)
+                .widthIn(max = 400.dp),
+            color = surfaceColor,
+            contentColor = contentColor
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(WallpaperTheme.values()) { theme ->
@@ -57,7 +63,7 @@ fun WallpaperThemeDialog(
                         Text(
                             text = theme.label,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (theme == current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            color = if (theme == current) MaterialTheme.colorScheme.primary else contentColor
                         )
                     }
                 }
