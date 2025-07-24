@@ -78,6 +78,7 @@ fun GameCarousel(
     selectedPackageName: String?,
     iconScale: Float,
     showLabels: Boolean = true,
+    showEditButton: Boolean = true,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
@@ -119,7 +120,7 @@ fun GameCarousel(
     val density = LocalDensity.current
     var currentText by remember {
         mutableStateOf(
-            if (pagerState.currentPage == games.size) "Edit" else games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()
+            if (showEditButton && pagerState.currentPage == games.size) "Edit" else games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()
         )
     }
     var labelBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -131,7 +132,7 @@ fun GameCarousel(
     )
 
     LaunchedEffect(pagerState.currentPage) {
-        val newText = if (pagerState.currentPage == games.size) {
+        val newText = if (showEditButton && pagerState.currentPage == games.size) {
             "Edit"
         } else {
             games.getOrNull(pagerState.currentPage)?.displayName.orEmpty()
@@ -164,7 +165,7 @@ fun GameCarousel(
 
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
-    val totalPages = games.size + 1
+    val totalPages = games.size + if (showEditButton) 1 else 0
 
     LaunchedEffect(games) {
         val itemWidthPx = with(density) { (maxPageWidth + itemSpacing).toPx() }
@@ -205,7 +206,7 @@ fun GameCarousel(
                 ),
                 key = { index -> if (index < games.size) games[index].packageName else "edit_button" }
             ) { page ->
-                val isEditPage = page == games.size
+                val isEditPage = showEditButton && page == games.size
                 val isSelected = pagerState.currentPage == page
                 val scale by animateFloatAsState(
                     targetValue = if (isSelected) selectedScale else 1f,

@@ -22,6 +22,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_ICON_SIZE = "icon_size"
         private const val KEY_SHOW_LABELS = "show_labels"
         private const val KEY_WALLPAPER_THEME = "wallpaper_theme"
+        private const val KEY_SETTINGS_LOCKED = "settings_locked"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -57,6 +58,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     var wallpaperTheme by mutableStateOf(WallpaperTheme.XMB_CLASSIC_BLUE)
         private set
 
+    var settingsLocked by mutableStateOf(false)
+        private set
+
     init {
         loadPreferences()
         loadInstalledGames()
@@ -87,6 +91,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
 
         showLabels = prefs.getBoolean(KEY_SHOW_LABELS, true)
+
+        settingsLocked = prefs.getBoolean(KEY_SETTINGS_LOCKED, false)
 
         enabledPackages = if (prefs.contains(KEY_ENABLED_PACKAGES)) {
             prefs.getStringSet(KEY_ENABLED_PACKAGES, emptySet())?.toSet() ?: emptySet()
@@ -218,6 +224,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     fun updateWallpaperTheme(theme: WallpaperTheme) {
         wallpaperTheme = theme
         prefs.edit().putString(KEY_WALLPAPER_THEME, theme.name).apply()
+    }
+
+    fun toggleSettingsLocked() {
+        settingsLocked = !settingsLocked
+        prefs.edit().putBoolean(KEY_SETTINGS_LOCKED, settingsLocked).apply()
     }
 
     fun refreshSort() {
