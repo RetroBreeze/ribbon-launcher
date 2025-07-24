@@ -207,10 +207,12 @@ fun GameCarousel(
             ) { page ->
                 val isEditPage = page == games.size
                 val isSelected = pagerState.currentPage == page
-                val size by animateDpAsState(
-                    targetValue = if (isSelected) itemSize * selectedScale else itemSize,
-                    label = "SizeAnimation"
+                val scale by animateFloatAsState(
+                    targetValue = if (isSelected) selectedScale else 1f,
+                    animationSpec = tween(durationMillis = 300),
+                    label = "ScaleAnimation"
                 )
+                val size = itemSize
 
                 val offset = if (!isEditPage) animatables[games[page].packageName]?.value ?: 0f else 0f
 
@@ -221,38 +223,50 @@ fun GameCarousel(
                     contentAlignment = Alignment.Center
                 ) {
                     if (isEditPage) {
+                        val editModifier = Modifier
+                            .height(size + (size * 0.25f))
+                            .width(size)
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                            }
+                            .clip(RoundedCornerShape(size * 0.08f))
+                            .background(Color.Gray.copy(alpha = 0.3f))
+                            .clickable {
+                                if (isSelected) {
+                                    onEdit()
+                                } else {
+                                    coroutineScope.launch { pagerState.animateScrollToPage(page) }
+                                }
+                            }
+
                         Box(
-                            modifier = Modifier
-                                .height(size + (size * 0.25f))
-                                .width(size)
-                                .clip(RoundedCornerShape(size * 0.08f))
-                                .background(Color.Gray.copy(alpha = 0.3f))
-                                .clickable {
-                                    if (isSelected) {
-                                        onEdit()
-                                    } else {
-                                        coroutineScope.launch { pagerState.animateScrollToPage(page) }
-                                    }
-                                },
+                            modifier = editModifier,
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
                         }
                     } else {
                         val game = games[page]
-                        Box(
-                            modifier = Modifier
-                                .height(size + (size * 0.25f))
-                                .width(size)
-                                .clickable {
-                                    if (isSelected) {
-                                        onLaunch(game)
-                                    } else {
-                                        coroutineScope.launch {
-                                            pagerState.animateScrollToPage(page)
-                                        }
+                        val gameModifier = Modifier
+                            .height(size + (size * 0.25f))
+                            .width(size)
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                            }
+                            .clickable {
+                                if (isSelected) {
+                                    onLaunch(game)
+                                } else {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(page)
                                     }
-                                },
+                                }
+                            }
+
+                        Box(
+                            modifier = gameModifier,
                             contentAlignment = Alignment.Center
                         ) {
                             ReflectiveGameIcon(
