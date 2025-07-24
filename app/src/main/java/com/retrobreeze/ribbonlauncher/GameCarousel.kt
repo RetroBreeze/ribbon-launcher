@@ -77,6 +77,7 @@ fun GameCarousel(
     pagerState: PagerState,
     selectedPackageName: String?,
     iconScale: Float,
+    showLabels: Boolean = true,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
@@ -129,7 +130,11 @@ fun GameCarousel(
         label = "BitmapFade"
     )
 
-    LaunchedEffect(pagerState.currentPage) {
+    LaunchedEffect(pagerState.currentPage, showLabels) {
+        if (!showLabels) {
+            labelBitmap = null
+            return@LaunchedEffect
+        }
         val newText = if (pagerState.currentPage == games.size) {
             "Edit"
         } else {
@@ -281,23 +286,25 @@ fun GameCarousel(
             height = arrowHeight
         )
 
-        labelBitmap?.let {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
-                    .fillMaxWidth()
-                    .height(48.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    bitmap = it,
-                    contentDescription = currentText,
+        if (showLabels) {
+            labelBitmap?.let {
+                Box(
                     modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 16.dp)
                         .fillMaxWidth()
-                        .height(32.dp)
-                        .alpha(animatedAlpha)
-                )
+                        .height(48.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        bitmap = it,
+                        contentDescription = currentText,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(32.dp)
+                            .alpha(animatedAlpha)
+                    )
+                }
             }
         }
     }

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -48,6 +49,8 @@ fun SettingsMenu(
     sortMode: SortMode,
     onSortClick: () -> Unit,
     onIconSizeClick: () -> Unit,
+    showLabels: Boolean,
+    onToggleLabels: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -123,9 +126,11 @@ fun SettingsMenu(
                 )
                 Spacer(Modifier.width(8.dp))
                 Icon(
-                    imageVector = Icons.Default.TextFields,
-                    contentDescription = "Show Labels",
-                    modifier = Modifier.size(24.dp)
+                    imageVector = if (showLabels) Icons.Default.TextFields else Icons.Default.VisibilityOff,
+                    contentDescription = "Toggle Labels",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onToggleLabels() }
                 )
                 Spacer(Modifier.width(8.dp))
                 Icon(
@@ -159,5 +164,11 @@ fun SettingsMenu(
 @Preview
 @Composable
 private fun SettingsMenuPreview() {
-    SettingsMenu(sortMode = SortMode.AZ, onSortClick = {}, onIconSizeClick = {})
+    SettingsMenu(
+        sortMode = SortMode.AZ,
+        onSortClick = {},
+        onIconSizeClick = {},
+        showLabels = true,
+        onToggleLabels = {}
+    )
 }
