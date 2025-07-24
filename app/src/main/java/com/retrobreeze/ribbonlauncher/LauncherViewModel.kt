@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import android.content.Intent
 import android.os.Build
 import com.retrobreeze.ribbonlauncher.model.GameEntry
+import com.retrobreeze.ribbonlauncher.ui.background.WallpaperTheme
 
 class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -20,6 +21,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_RIBBON_TITLE = "ribbon_title"
         private const val KEY_ICON_SIZE = "icon_size"
         private const val KEY_SHOW_LABELS = "show_labels"
+        private const val KEY_WALLPAPER_THEME = "wallpaper_theme"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -52,6 +54,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     var showLabels by mutableStateOf(true)
         private set
 
+    var wallpaperTheme by mutableStateOf(WallpaperTheme.XMB_CLASSIC_BLUE)
+        private set
+
     init {
         loadPreferences()
         loadInstalledGames()
@@ -73,6 +78,12 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
             IconSizeOption.valueOf(prefs.getString(KEY_ICON_SIZE, IconSizeOption.FULL.name)!!)
         } catch (_: IllegalArgumentException) {
             IconSizeOption.FULL
+        }
+
+        wallpaperTheme = try {
+            WallpaperTheme.valueOf(prefs.getString(KEY_WALLPAPER_THEME, WallpaperTheme.XMB_CLASSIC_BLUE.name)!!)
+        } catch (_: IllegalArgumentException) {
+            WallpaperTheme.XMB_CLASSIC_BLUE
         }
 
         showLabels = prefs.getBoolean(KEY_SHOW_LABELS, true)
@@ -202,6 +213,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     fun updateRibbonTitle(title: String) {
         ribbonTitle = title
         prefs.edit().putString(KEY_RIBBON_TITLE, title).apply()
+    }
+
+    fun updateWallpaperTheme(theme: WallpaperTheme) {
+        wallpaperTheme = theme
+        prefs.edit().putString(KEY_WALLPAPER_THEME, theme.name).apply()
     }
 
     fun refreshSort() {
