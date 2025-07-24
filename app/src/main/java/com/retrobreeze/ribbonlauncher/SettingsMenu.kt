@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Photo
@@ -37,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +51,8 @@ fun SettingsMenu(
     showLabels: Boolean,
     onToggleLabels: () -> Unit,
     onWallpaperClick: () -> Unit,
+    locked: Boolean,
+    onLockToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -75,7 +77,9 @@ fun SettingsMenu(
         Icon(
             imageVector = Icons.Default.Settings,
             contentDescription = "Settings",
-            modifier = Modifier.clickable { expanded = !expanded }
+            modifier = Modifier
+                .alpha(if (locked) 0.3f else 1f)
+                .clickable { expanded = !expanded }
         )
         AnimatedVisibility(
             visible = expanded,
@@ -88,7 +92,8 @@ fun SettingsMenu(
                     modifier = Modifier
                         .height(24.dp)
                         .widthIn(min = 24.dp)
-                        .clickable { onSortClick() },
+                        .alpha(if (locked) 0.3f else 1f)
+                        .clickable(enabled = !locked) { onSortClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     AnimatedContent(
@@ -116,7 +121,8 @@ fun SettingsMenu(
                     contentDescription = "Icon Size",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable { onIconSizeClick() }
+                        .alpha(if (locked) 0.3f else 1f)
+                        .clickable(enabled = !locked) { onIconSizeClick() }
                 )
                 Spacer(Modifier.width(8.dp))
                 Icon(
@@ -124,7 +130,8 @@ fun SettingsMenu(
                     contentDescription = "Toggle Labels",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable { onToggleLabels() }
+                        .alpha(if (locked) 0.3f else 1f)
+                        .clickable(enabled = !locked) { onToggleLabels() }
                 )
                 Spacer(Modifier.width(8.dp))
                 Icon(
@@ -132,25 +139,32 @@ fun SettingsMenu(
                     contentDescription = "Wallpaper",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable { onWallpaperClick() }
+                        .alpha(if (locked) 0.3f else 1f)
+                        .clickable(enabled = !locked) { onWallpaperClick() }
                 )
                 Spacer(Modifier.width(8.dp))
                 divider()
                 Spacer(Modifier.width(8.dp))
-                val locked = false
                 Icon(
                     imageVector = if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     contentDescription = "Lock",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onLockToggle()
+                            if (!locked) expanded = false
+                        }
                 )
                 Spacer(Modifier.width(8.dp))
                 divider()
                 Spacer(Modifier.width(8.dp))
-                val erased = false
                 Icon(
-                    imageVector = if (erased) Icons.Default.Delete else Icons.Default.Restore,
+                    imageVector = Icons.Default.Restore,
                     contentDescription = "Reset",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .alpha(if (locked) 0.3f else 1f)
+                        .clickable(enabled = !locked) { }
                 )
             }
         }
@@ -166,6 +180,8 @@ private fun SettingsMenuPreview() {
         onIconSizeClick = {},
         showLabels = true,
         onToggleLabels = {},
-        onWallpaperClick = {}
+        onWallpaperClick = {},
+        locked = false,
+        onLockToggle = {}
     )
 }

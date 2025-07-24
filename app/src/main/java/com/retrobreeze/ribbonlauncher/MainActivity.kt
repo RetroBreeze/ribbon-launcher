@@ -69,7 +69,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var showDrawer by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
-    val pagerState = rememberPagerState(initialPage = 0) { games.size + 1 }
+    val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
     LaunchedEffect(pagerState.currentPage, games) {
         val pkg = games.getOrNull(pagerState.currentPage)?.packageName
@@ -94,6 +94,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     selectedPackageName = viewModel.selectedGamePackage,
                     iconScale = viewModel.iconSizeOption.multiplier,
                     showLabels = viewModel.showLabels,
+                    showEditButton = !viewModel.settingsLocked,
                     onLaunch = { game ->
                         val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
                         if (intent != null) {
@@ -135,7 +136,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
             ) {
                 RibbonTitle(
                     title = viewModel.ribbonTitle,
-                    onTitleChange = { viewModel.updateRibbonTitle(it) }
+                    onTitleChange = { viewModel.updateRibbonTitle(it) },
+                    enabled = !viewModel.settingsLocked
                 )
                 Spacer(Modifier.width(8.dp))
                 Box(
@@ -151,7 +153,9 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     onIconSizeClick = { viewModel.cycleIconSize() },
                     showLabels = viewModel.showLabels,
                     onToggleLabels = { viewModel.toggleShowLabels() },
-                    onWallpaperClick = { showWallpaperDialog = true }
+                    onWallpaperClick = { showWallpaperDialog = true },
+                    locked = viewModel.settingsLocked,
+                    onLockToggle = { viewModel.toggleSettingsLocked() }
                 )
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))

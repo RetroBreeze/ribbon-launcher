@@ -36,6 +36,7 @@ private const val MAX_TITLE_LENGTH = 50
 fun RibbonTitle(
     title: String,
     onTitleChange: (String) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     var editing by remember { mutableStateOf(false) }
@@ -48,6 +49,12 @@ fun RibbonTitle(
     LaunchedEffect(title) {
         if (!editing) {
             localTitle = TextFieldValue(title)
+        }
+    }
+
+    LaunchedEffect(enabled) {
+        if (!enabled) {
+            editing = false
         }
     }
 
@@ -105,7 +112,7 @@ fun RibbonTitle(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White,
-                modifier = Modifier.clickable {
+                modifier = Modifier.clickable(enabled = enabled) {
                     localTitle = TextFieldValue(title, TextRange(0, title.length))
                     editing = true
                 }
@@ -118,5 +125,5 @@ fun RibbonTitle(
 @Preview
 @Composable
 private fun RibbonTitlePreview() {
-    RibbonTitle(title = "Games", onTitleChange = {})
+    RibbonTitle(title = "Games", onTitleChange = {}, enabled = true)
 }
