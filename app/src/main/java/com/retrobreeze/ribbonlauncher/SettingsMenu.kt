@@ -53,6 +53,7 @@ fun SettingsMenu(
     onWallpaperClick: () -> Unit,
     locked: Boolean,
     onLockToggle: () -> Unit,
+    onResetClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -164,7 +165,7 @@ fun SettingsMenu(
                     modifier = Modifier
                         .size(24.dp)
                         .alpha(if (locked) 0.3f else 1f)
-                        .clickable(enabled = !locked) { }
+                        .clickable(enabled = !locked) { onResetClick() }
                 )
             }
         }
@@ -182,6 +183,7 @@ private fun SettingsMenuPreview() {
         onToggleLabels = {},
         onWallpaperClick = {},
         locked = false,
-        onLockToggle = {}
+        onLockToggle = {},
+        onResetClick = {}
     )
 }

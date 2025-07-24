@@ -32,6 +32,7 @@ import com.retrobreeze.ribbonlauncher.StatusTopBar
 import com.retrobreeze.ribbonlauncher.NavigationBottomBar
 import com.retrobreeze.ribbonlauncher.EditAppsDialog
 import com.retrobreeze.ribbonlauncher.WallpaperThemeDialog
+import com.retrobreeze.ribbonlauncher.ResetConfirmationDialog
 import com.retrobreeze.ribbonlauncher.ui.background.AnimatedBackground
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
 
@@ -69,6 +70,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var showDrawer by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
     LaunchedEffect(pagerState.currentPage, games) {
@@ -128,6 +130,14 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 onSelect = { viewModel.updateWallpaperTheme(it) },
                 onDismiss = { showWallpaperDialog = false }
             )
+            ResetConfirmationDialog(
+                show = showResetDialog,
+                onConfirm = {
+                    viewModel.resetLauncher()
+                    showResetDialog = false
+                },
+                onDismiss = { showResetDialog = false }
+            )
             Row(
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -155,7 +165,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     onToggleLabels = { viewModel.toggleShowLabels() },
                     onWallpaperClick = { showWallpaperDialog = true },
                     locked = viewModel.settingsLocked,
-                    onLockToggle = { viewModel.toggleSettingsLocked() }
+                    onLockToggle = { viewModel.toggleSettingsLocked() },
+                    onResetClick = { showResetDialog = true }
                 )
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))

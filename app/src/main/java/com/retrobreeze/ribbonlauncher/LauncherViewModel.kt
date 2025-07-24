@@ -231,6 +231,13 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().putBoolean(KEY_SETTINGS_LOCKED, settingsLocked).apply()
     }
 
+    fun resetLauncher() {
+        prefs.edit().clear().apply()
+        lastPlayed.clear()
+        loadPreferences()
+        sortGames()
+    }
+
     fun refreshSort() {
         sortGames()
     }
