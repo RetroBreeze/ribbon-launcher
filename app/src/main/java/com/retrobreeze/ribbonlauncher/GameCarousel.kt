@@ -114,7 +114,8 @@ fun GameCarousel(
     }
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
-    val arrowHeight = itemSize * 0.5f
+    // Keep navigation arrows a consistent size regardless of icon scale
+    val arrowHeight = 48.dp
     val arrowWidth = arrowHeight / 2
 
     val density = LocalDensity.current
