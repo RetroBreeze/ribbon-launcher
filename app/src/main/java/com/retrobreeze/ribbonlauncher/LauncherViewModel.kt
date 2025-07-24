@@ -18,6 +18,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_SELECTED_GAME = "selected_game"
         private const val KEY_ENABLED_PACKAGES = "enabled_packages"
         private const val KEY_RIBBON_TITLE = "ribbon_title"
+        private const val KEY_ICON_SIZE = "icon_size"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -44,6 +45,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     var ribbonTitle by mutableStateOf("Games")
         private set
 
+    var iconSizeOption by mutableStateOf(IconSizeOption.FULL)
+        private set
+
     init {
         loadPreferences()
         loadInstalledGames()
@@ -60,6 +64,12 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         ribbonTitle = prefs.getString(KEY_RIBBON_TITLE, "Games") ?: "Games"
 
         selectedGamePackage = prefs.getString(KEY_SELECTED_GAME, null)
+
+        iconSizeOption = try {
+            IconSizeOption.valueOf(prefs.getString(KEY_ICON_SIZE, IconSizeOption.FULL.name)!!)
+        } catch (_: IllegalArgumentException) {
+            IconSizeOption.FULL
+        }
 
         enabledPackages = if (prefs.contains(KEY_ENABLED_PACKAGES)) {
             prefs.getStringSet(KEY_ENABLED_PACKAGES, emptySet())?.toSet() ?: emptySet()
@@ -149,6 +159,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().putString(KEY_SORT_MODE, sortMode.name).apply()
 
         sortGames()
+    }
+
+    fun cycleIconSize() {
+        iconSizeOption = iconSizeOption.next()
+        prefs.edit().putString(KEY_ICON_SIZE, iconSizeOption.name).apply()
     }
 
     fun updateSortMode(mode: SortMode) {

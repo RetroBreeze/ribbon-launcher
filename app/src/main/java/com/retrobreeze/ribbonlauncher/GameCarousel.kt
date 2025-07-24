@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -75,12 +76,40 @@ fun GameCarousel(
     games: List<GameEntry>,
     pagerState: PagerState,
     selectedPackageName: String?,
+    iconScale: Float,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val itemSpacing = 12.dp
-    val itemSize = 150.dp
+    val baseItemSpacing = 12.dp
+    val baseItemSize = 150.dp
+
+    var previousScale by remember { mutableStateOf(iconScale) }
+    var spacingTarget by remember { mutableStateOf(baseItemSpacing * iconScale) }
+
+    val itemSize by animateDpAsState(
+        targetValue = baseItemSize * iconScale,
+        animationSpec = tween(durationMillis = 300),
+        label = "itemSize"
+    )
+    val itemSpacing by animateDpAsState(
+        targetValue = spacingTarget,
+        animationSpec = tween(durationMillis = 300),
+        label = "spacing"
+    )
+
+    var isResizing by remember { mutableStateOf(false) }
+    LaunchedEffect(iconScale) {
+        if (iconScale != previousScale) {
+            isResizing = true
+            spacingTarget = baseItemSpacing * previousScale
+            previousScale = iconScale
+            kotlinx.coroutines.delay(300)
+            spacingTarget = baseItemSpacing * iconScale
+            kotlinx.coroutines.delay(300)
+            isResizing = false
+        }
+    }
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
     val arrowHeight = itemSize * 0.5f
@@ -118,7 +147,8 @@ fun GameCarousel(
     }
 
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
-    val horizontalPadding = ((screenWidthDp - maxPageWidth) / 2).coerceAtLeast(0.dp)
+    val targetPadding = ((screenWidthDp - maxPageWidth) / 2).coerceAtLeast(0.dp)
+    val horizontalPadding by animateDpAsState(targetValue = targetPadding, label = "padding")
 
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
@@ -183,7 +213,7 @@ fun GameCarousel(
                             modifier = Modifier
                                 .height(size + (size * 0.25f))
                                 .width(size)
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(size * 0.08f))
                                 .background(Color.Gray.copy(alpha = 0.3f))
                                 .clickable {
                                     if (isSelected) {
@@ -216,7 +246,8 @@ fun GameCarousel(
                             ReflectiveGameIcon(
                                 icon = game.icon,
                                 contentDesc = game.displayName,
-                                iconSize = size
+                                iconSize = size,
+                                showReflection = !isResizing
                             )
                         }
                     }
@@ -276,7 +307,8 @@ fun GameCarousel(
 fun ReflectiveGameIcon(
     icon: Drawable,
     contentDesc: String,
-    iconSize: Dp
+    iconSize: Dp,
+    showReflection: Boolean = true
 ) {
     val bitmap = icon.toBitmap(width = 256, height = 256)
     val painter = BitmapPainter(bitmap.asImageBitmap())
@@ -292,40 +324,42 @@ fun ReflectiveGameIcon(
             contentDescription = contentDesc,
             modifier = Modifier
                 .size(iconSize)
-                .clip(RoundedCornerShape(12.dp)),
+                .clip(RoundedCornerShape(iconSize * 0.08f)),
             contentScale = ContentScale.Crop
         )
 
-        Box(
-            modifier = Modifier
-                .height(iconSize * 0.25f)
-                .width(iconSize)
-                .clip(RoundedCornerShape(12.dp))
-                .drawWithCache {
-                    val gradient = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
-                        startY = 0f,
-                        endY = size.height
-                    )
-                    onDrawWithContent {
-                        with(drawContext.canvas) {
-                            saveLayer(bounds = size.toRect(), paint = Paint())
-                            drawContent()
-                            drawRect(gradient, blendMode = BlendMode.DstIn)
-                            restore()
+        if (showReflection) {
+            Box(
+                modifier = Modifier
+                    .height(iconSize * 0.25f)
+                    .width(iconSize)
+                    .clip(RoundedCornerShape(iconSize * 0.08f))
+                    .drawWithCache {
+                        val gradient = Brush.verticalGradient(
+                            colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
+                            startY = 0f,
+                            endY = size.height
+                        )
+                        onDrawWithContent {
+                            with(drawContext.canvas) {
+                                saveLayer(bounds = size.toRect(), paint = Paint())
+                                drawContent()
+                                drawRect(gradient, blendMode = BlendMode.DstIn)
+                                restore()
+                            }
                         }
                     }
-                }
-        ) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer { scaleY = -1f },
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.BottomCenter
-            )
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer { scaleY = -1f },
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.BottomCenter
+                )
+            }
         }
     }
 }

@@ -87,6 +87,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     games = games,
                     pagerState = pagerState,
                     selectedPackageName = viewModel.selectedGamePackage,
+                    iconScale = viewModel.iconSizeOption.multiplier,
                     onLaunch = { game ->
                         val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
                         if (intent != null) {
@@ -134,7 +135,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 Spacer(Modifier.width(8.dp))
                 SettingsMenu(
                     sortMode = sortMode,
-                    onSortClick = { viewModel.cycleSortMode() }
+                    onSortClick = { viewModel.cycleSortMode() },
+                    onIconSizeClick = { viewModel.cycleIconSize() }
                 )
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
