@@ -47,6 +47,7 @@ import kotlinx.coroutines.delay
 fun SettingsMenu(
     sortMode: SortMode,
     onSortClick: () -> Unit,
+    onIconSizeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -110,7 +111,9 @@ fun SettingsMenu(
                 Icon(
                     imageVector = Icons.Default.ZoomIn,
                     contentDescription = "Icon Size",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onIconSizeClick() }
                 )
                 Spacer(Modifier.width(8.dp))
                 Icon(
@@ -156,5 +159,5 @@ fun SettingsMenu(
 @Preview
 @Composable
 private fun SettingsMenuPreview() {
-    SettingsMenu(sortMode = SortMode.AZ, onSortClick = {})
+    SettingsMenu(sortMode = SortMode.AZ, onSortClick = {}, onIconSizeClick = {})
 }

@@ -75,12 +75,15 @@ fun GameCarousel(
     games: List<GameEntry>,
     pagerState: PagerState,
     selectedPackageName: String?,
+    iconScale: Float,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val itemSpacing = 12.dp
-    val itemSize = 150.dp
+    val baseItemSpacing = 12.dp
+    val baseItemSize = 150.dp
+    val itemSpacing by animateDpAsState(targetValue = baseItemSpacing * iconScale, label = "spacing")
+    val itemSize by animateDpAsState(targetValue = baseItemSize * iconScale, label = "itemSize")
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
     val arrowHeight = itemSize * 0.5f
@@ -118,7 +121,8 @@ fun GameCarousel(
     }
 
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
-    val horizontalPadding = ((screenWidthDp - maxPageWidth) / 2).coerceAtLeast(0.dp)
+    val targetPadding = ((screenWidthDp - maxPageWidth) / 2).coerceAtLeast(0.dp)
+    val horizontalPadding by animateDpAsState(targetValue = targetPadding, label = "padding")
 
     val animatables = remember { mutableMapOf<String, Animatable<Float, AnimationVector1D>>() }
     var previousIndices by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
