@@ -187,7 +187,7 @@ fun GameCarousel(
                             modifier = Modifier
                                 .height(size + (size * 0.25f))
                                 .width(size)
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(size * 0.08f))
                                 .background(Color.Gray.copy(alpha = 0.3f))
                                 .clickable {
                                     if (isSelected) {
@@ -296,7 +296,7 @@ fun ReflectiveGameIcon(
             contentDescription = contentDesc,
             modifier = Modifier
                 .size(iconSize)
-                .clip(RoundedCornerShape(12.dp)),
+                .clip(RoundedCornerShape(iconSize * 0.08f)),
             contentScale = ContentScale.Crop
         )
 
@@ -304,7 +304,7 @@ fun ReflectiveGameIcon(
             modifier = Modifier
                 .height(iconSize * 0.25f)
                 .width(iconSize)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(iconSize * 0.08f))
                 .drawWithCache {
                     val gradient = Brush.verticalGradient(
                         colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
