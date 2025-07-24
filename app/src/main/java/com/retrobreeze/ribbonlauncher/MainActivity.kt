@@ -26,7 +26,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import com.retrobreeze.ribbonlauncher.GameCarousel
-import com.retrobreeze.ribbonlauncher.SortButton
+import com.retrobreeze.ribbonlauncher.SettingsMenu
 import com.retrobreeze.ribbonlauncher.RibbonTitle
 import com.retrobreeze.ribbonlauncher.StatusTopBar
 import com.retrobreeze.ribbonlauncher.NavigationBottomBar
@@ -132,9 +132,9 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                         .background(Color.White.copy(alpha = 0.3f))
                 )
                 Spacer(Modifier.width(8.dp))
-                SortButton(
+                SettingsMenu(
                     sortMode = sortMode,
-                    onClick = { viewModel.cycleSortMode() }
+                    onSortClick = { viewModel.cycleSortMode() }
                 )
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
