@@ -16,11 +16,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.rememberAsyncImagePainter
 import com.retrobreeze.ribbonlauncher.model.GameEntry
+import com.retrobreeze.ribbonlauncher.util.contrastingColor
 
 @Composable
 fun EditAppsDialog(
@@ -55,11 +57,15 @@ fun EditAppsDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        val contentColor = surfaceColor.contrastingColor()
         Surface(
             modifier = Modifier
                 .padding(WindowInsets.systemBars.asPaddingValues())
                 .widthIn(max = 400.dp),
-            shape = MaterialTheme.shapes.medium
+            shape = MaterialTheme.shapes.medium,
+            color = surfaceColor,
+            contentColor = contentColor
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
