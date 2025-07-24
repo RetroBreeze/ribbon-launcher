@@ -31,6 +31,7 @@ import com.retrobreeze.ribbonlauncher.RibbonTitle
 import com.retrobreeze.ribbonlauncher.StatusTopBar
 import com.retrobreeze.ribbonlauncher.NavigationBottomBar
 import com.retrobreeze.ribbonlauncher.EditAppsDialog
+import com.retrobreeze.ribbonlauncher.WallpaperThemeDialog
 import com.retrobreeze.ribbonlauncher.ui.background.AnimatedBackground
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
 
@@ -67,6 +68,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val context = LocalContext.current
     var showDrawer by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
+    var showWallpaperDialog by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + 1 }
 
     LaunchedEffect(pagerState.currentPage, games) {
@@ -76,7 +78,10 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedBackground(modifier = Modifier.fillMaxSize())
+            AnimatedBackground(
+                theme = viewModel.wallpaperTheme,
+                modifier = Modifier.fillMaxSize()
+            )
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -116,6 +121,12 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 onConfirm = { packages -> viewModel.updateEnabledPackages(packages) },
                 onDismiss = { showEditDialog = false }
             )
+            WallpaperThemeDialog(
+                show = showWallpaperDialog,
+                current = viewModel.wallpaperTheme,
+                onSelect = { viewModel.updateWallpaperTheme(it) },
+                onDismiss = { showWallpaperDialog = false }
+            )
             Row(
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -139,7 +150,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     onSortClick = { viewModel.cycleSortMode() },
                     onIconSizeClick = { viewModel.cycleIconSize() },
                     showLabels = viewModel.showLabels,
-                    onToggleLabels = { viewModel.toggleShowLabels() }
+                    onToggleLabels = { viewModel.toggleShowLabels() },
+                    onWallpaperClick = { showWallpaperDialog = true }
                 )
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))

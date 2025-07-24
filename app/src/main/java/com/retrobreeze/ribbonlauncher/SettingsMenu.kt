@@ -50,6 +50,7 @@ fun SettingsMenu(
     onIconSizeClick: () -> Unit,
     showLabels: Boolean,
     onToggleLabels: () -> Unit,
+    onWallpaperClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -129,7 +130,9 @@ fun SettingsMenu(
                 Icon(
                     imageVector = Icons.Default.Photo,
                     contentDescription = "Wallpaper",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onWallpaperClick() }
                 )
                 Spacer(Modifier.width(8.dp))
                 divider()
@@ -162,6 +165,7 @@ private fun SettingsMenuPreview() {
         onSortClick = {},
         onIconSizeClick = {},
         showLabels = true,
-        onToggleLabels = {}
+        onToggleLabels = {},
+        onWallpaperClick = {}
     )
 }
