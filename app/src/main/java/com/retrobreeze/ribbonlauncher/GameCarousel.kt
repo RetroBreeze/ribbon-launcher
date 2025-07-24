@@ -114,8 +114,11 @@ fun GameCarousel(
     }
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
-    val arrowHeight = itemSize * 0.5f
+    // Keep navigation arrows a consistent size regardless of icon scale
+    val arrowHeight = 48.dp
     val arrowWidth = arrowHeight / 2
+    // Keep arrows away from the very edge of the screen
+    val arrowPadding = 16.dp
 
     val density = LocalDensity.current
     var currentText by remember {
@@ -291,7 +294,9 @@ fun GameCarousel(
                 val target = (pagerState.currentPage - 4).coerceAtLeast(0)
                 coroutineScope.launch { pagerState.animateScrollToPage(target) }
             },
-            modifier = Modifier.align(Alignment.CenterStart),
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = arrowPadding),
             width = arrowWidth,
             height = arrowHeight
         )
@@ -303,7 +308,9 @@ fun GameCarousel(
                 val target = (pagerState.currentPage + 4).coerceAtMost(totalPages - 1)
                 coroutineScope.launch { pagerState.animateScrollToPage(target) }
             },
-            modifier = Modifier.align(Alignment.CenterEnd),
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = arrowPadding),
             width = arrowWidth,
             height = arrowHeight
         )
