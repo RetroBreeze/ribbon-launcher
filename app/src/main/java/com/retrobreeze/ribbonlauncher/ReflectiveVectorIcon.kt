@@ -14,7 +14,6 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,7 +25,6 @@ fun ReflectiveVectorIcon(
     iconSize: Dp
 ) {
     val reflectionHeight = iconSize * 0.25f
-    val translationYPx = with(LocalDensity.current) { (reflectionHeight - iconSize).toPx() }
 
     Column(
         modifier = Modifier
@@ -68,11 +66,8 @@ fun ReflectiveVectorIcon(
                 imageVector = imageVector,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(iconSize)
-                    .graphicsLayer {
-                        scaleY = -1f
-                        translationY = translationYPx
-                    },
+                    .fillMaxSize()
+                    .graphicsLayer { scaleY = -1f },
                 tint = LocalContentColor.current
             )
         }
