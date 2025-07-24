@@ -140,17 +140,17 @@ fun GameCarousel(
             alpha = 0f
             kotlinx.coroutines.delay(150)
             currentText = newText
-            labelBitmap = renderTextToBitmap(currentText, 32.dp, density)
+            labelBitmap = renderTextToBitmap(currentText, 48.dp, density)
             if (showLabels) alpha = 1f
         } else if (labelBitmap == null) {
-            labelBitmap = renderTextToBitmap(text = currentText, heightDp = 32.dp, density = density)
+            labelBitmap = renderTextToBitmap(text = currentText, heightDp = 48.dp, density = density)
         }
     }
 
     LaunchedEffect(showLabels) {
         if (showLabels) {
             if (labelBitmap == null) {
-                labelBitmap = renderTextToBitmap(currentText, 32.dp, density)
+                labelBitmap = renderTextToBitmap(currentText, 48.dp, density)
             }
             alpha = 1f
         } else {
@@ -313,7 +313,7 @@ fun GameCarousel(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 16.dp)
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(64.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -321,7 +321,7 @@ fun GameCarousel(
                     contentDescription = currentText,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(32.dp)
+                        .height(48.dp)
                         .alpha(animatedAlpha)
                 )
             }
