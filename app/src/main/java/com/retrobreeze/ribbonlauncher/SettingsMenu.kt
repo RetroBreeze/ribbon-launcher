@@ -1,10 +1,13 @@
 package com.retrobreeze.ribbonlauncher
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material.icons.filled.Delete
@@ -26,6 +30,7 @@ import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -35,14 +40,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 @Composable
+@OptIn(ExperimentalAnimationApi::class)
 fun SettingsMenu(
     sortMode: SortMode,
     onSortClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showSortLabel by remember { mutableStateOf(false) }
+
+    LaunchedEffect(sortMode) {
+        showSortLabel = true
+        delay(1000)
+        showSortLabel = false
+    }
 
     val divider: @Composable () -> Unit = {
         Box(
@@ -66,16 +80,32 @@ fun SettingsMenu(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Spacer(Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.Default.Sort,
-                    contentDescription = "Sort",
+                Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            onSortClick()
-                            expanded = false
+                        .height(24.dp)
+                        .widthIn(min = 24.dp)
+                        .clickable { onSortClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    AnimatedContent(
+                        targetState = showSortLabel,
+                        transitionSpec = { fadeIn() with fadeOut() },
+                        label = "sortDisplay"
+                    ) { show ->
+                        if (show) {
+                            androidx.compose.material3.Text(
+                                text = sortMode.label,
+                                color = Color.White
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Sort,
+                                contentDescription = "Sort",
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
-                )
+                    }
+                }
                 Spacer(Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.Default.ZoomIn,
