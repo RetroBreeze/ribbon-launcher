@@ -84,6 +84,12 @@ fun GameCarousel(
     val baseItemSize = 150.dp
     val itemSpacing by animateDpAsState(targetValue = baseItemSpacing * iconScale, label = "spacing")
     val itemSize by animateDpAsState(targetValue = baseItemSize * iconScale, label = "itemSize")
+    var isResizing by remember { mutableStateOf(false) }
+    LaunchedEffect(iconScale) {
+        isResizing = true
+        kotlinx.coroutines.delay(300)
+        isResizing = false
+    }
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
     val arrowHeight = itemSize * 0.5f
@@ -220,7 +226,8 @@ fun GameCarousel(
                             ReflectiveGameIcon(
                                 icon = game.icon,
                                 contentDesc = game.displayName,
-                                iconSize = size
+                                iconSize = size,
+                                showReflection = !isResizing
                             )
                         }
                     }
@@ -280,7 +287,8 @@ fun GameCarousel(
 fun ReflectiveGameIcon(
     icon: Drawable,
     contentDesc: String,
-    iconSize: Dp
+    iconSize: Dp,
+    showReflection: Boolean = true
 ) {
     val bitmap = icon.toBitmap(width = 256, height = 256)
     val painter = BitmapPainter(bitmap.asImageBitmap())
@@ -300,36 +308,38 @@ fun ReflectiveGameIcon(
             contentScale = ContentScale.Crop
         )
 
-        Box(
-            modifier = Modifier
-                .height(iconSize * 0.25f)
-                .width(iconSize)
-                .clip(RoundedCornerShape(iconSize * 0.08f))
-                .drawWithCache {
-                    val gradient = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
-                        startY = 0f,
-                        endY = size.height
-                    )
-                    onDrawWithContent {
-                        with(drawContext.canvas) {
-                            saveLayer(bounds = size.toRect(), paint = Paint())
-                            drawContent()
-                            drawRect(gradient, blendMode = BlendMode.DstIn)
-                            restore()
+        if (showReflection) {
+            Box(
+                modifier = Modifier
+                    .height(iconSize * 0.25f)
+                    .width(iconSize)
+                    .clip(RoundedCornerShape(iconSize * 0.08f))
+                    .drawWithCache {
+                        val gradient = Brush.verticalGradient(
+                            colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
+                            startY = 0f,
+                            endY = size.height
+                        )
+                        onDrawWithContent {
+                            with(drawContext.canvas) {
+                                saveLayer(bounds = size.toRect(), paint = Paint())
+                                drawContent()
+                                drawRect(gradient, blendMode = BlendMode.DstIn)
+                                restore()
+                            }
                         }
                     }
-                }
-        ) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer { scaleY = -1f },
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.BottomCenter
-            )
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer { scaleY = -1f },
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.BottomCenter
+                )
+            }
         }
     }
 }
