@@ -123,18 +123,14 @@ fun GameCarousel(
         )
     }
     var labelBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    var alpha by remember { mutableStateOf(1f) }
+    var alpha by remember { mutableStateOf(if (showLabels) 1f else 0f) }
 
     val animatedAlpha by animateFloatAsState(
         targetValue = alpha,
         label = "BitmapFade"
     )
 
-    LaunchedEffect(pagerState.currentPage, showLabels) {
-        if (!showLabels) {
-            labelBitmap = null
-            return@LaunchedEffect
-        }
+    LaunchedEffect(pagerState.currentPage) {
         val newText = if (pagerState.currentPage == games.size) {
             "Edit"
         } else {
@@ -145,9 +141,20 @@ fun GameCarousel(
             kotlinx.coroutines.delay(150)
             currentText = newText
             labelBitmap = renderTextToBitmap(currentText, 32.dp, density)
-            alpha = 1f
+            if (showLabels) alpha = 1f
         } else if (labelBitmap == null) {
             labelBitmap = renderTextToBitmap(text = currentText, heightDp = 32.dp, density = density)
+        }
+    }
+
+    LaunchedEffect(showLabels) {
+        if (showLabels) {
+            if (labelBitmap == null) {
+                labelBitmap = renderTextToBitmap(currentText, 32.dp, density)
+            }
+            alpha = 1f
+        } else {
+            alpha = 0f
         }
     }
 
@@ -286,25 +293,23 @@ fun GameCarousel(
             height = arrowHeight
         )
 
-        if (showLabels) {
-            labelBitmap?.let {
-                Box(
+        labelBitmap?.let {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+                    .fillMaxWidth()
+                    .height(48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    bitmap = it,
+                    contentDescription = currentText,
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 16.dp)
                         .fillMaxWidth()
-                        .height(48.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        bitmap = it,
-                        contentDescription = currentText,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(32.dp)
-                            .alpha(animatedAlpha)
-                    )
-                }
+                        .height(32.dp)
+                        .alpha(animatedAlpha)
+                )
             }
         }
     }
