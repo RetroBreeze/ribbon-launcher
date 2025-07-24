@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -82,13 +83,32 @@ fun GameCarousel(
     val coroutineScope = rememberCoroutineScope()
     val baseItemSpacing = 12.dp
     val baseItemSize = 150.dp
-    val itemSpacing by animateDpAsState(targetValue = baseItemSpacing * iconScale, label = "spacing")
-    val itemSize by animateDpAsState(targetValue = baseItemSize * iconScale, label = "itemSize")
+
+    var previousScale by remember { mutableStateOf(iconScale) }
+    var spacingTarget by remember { mutableStateOf(baseItemSpacing * iconScale) }
+
+    val itemSize by animateDpAsState(
+        targetValue = baseItemSize * iconScale,
+        animationSpec = tween(durationMillis = 300),
+        label = "itemSize"
+    )
+    val itemSpacing by animateDpAsState(
+        targetValue = spacingTarget,
+        animationSpec = tween(durationMillis = 300),
+        label = "spacing"
+    )
+
     var isResizing by remember { mutableStateOf(false) }
     LaunchedEffect(iconScale) {
-        isResizing = true
-        kotlinx.coroutines.delay(300)
-        isResizing = false
+        if (iconScale != previousScale) {
+            isResizing = true
+            spacingTarget = baseItemSpacing * previousScale
+            previousScale = iconScale
+            kotlinx.coroutines.delay(300)
+            spacingTarget = baseItemSpacing * iconScale
+            kotlinx.coroutines.delay(300)
+            isResizing = false
+        }
     }
     val selectedScale = 1.25f
     val maxPageWidth = itemSize * selectedScale
