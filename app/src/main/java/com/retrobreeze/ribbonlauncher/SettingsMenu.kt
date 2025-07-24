@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -117,12 +116,6 @@ fun SettingsMenu(
                     modifier = Modifier
                         .size(24.dp)
                         .clickable { onIconSizeClick() }
-                )
-                Spacer(Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.Default.CropFree,
-                    contentDescription = "Selected Icon Size",
-                    modifier = Modifier.size(24.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Icon(
