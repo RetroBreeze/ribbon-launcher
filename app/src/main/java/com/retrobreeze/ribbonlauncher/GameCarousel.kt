@@ -77,6 +77,7 @@ fun GameCarousel(
     pagerState: PagerState,
     selectedPackageName: String?,
     iconScale: Float,
+    selectedIconScale: Float,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
@@ -91,6 +92,11 @@ fun GameCarousel(
         targetValue = baseItemSize * iconScale,
         animationSpec = tween(durationMillis = 300),
         label = "itemSize"
+    )
+    val selectedItemSize by animateDpAsState(
+        targetValue = baseItemSize * selectedIconScale,
+        animationSpec = tween(durationMillis = 300),
+        label = "selectedItemSize"
     )
     val itemSpacing by animateDpAsState(
         targetValue = spacingTarget,
@@ -111,8 +117,8 @@ fun GameCarousel(
         }
     }
     val selectedScale = 1.25f
-    val maxPageWidth = itemSize * selectedScale
-    val arrowHeight = itemSize * 0.5f
+    val maxPageWidth = maxOf(itemSize, selectedItemSize * selectedScale)
+    val arrowHeight = maxOf(itemSize, selectedItemSize) * 0.5f
     val arrowWidth = arrowHeight / 2
 
     val density = LocalDensity.current
@@ -196,7 +202,7 @@ fun GameCarousel(
                 val isEditPage = page == games.size
                 val isSelected = pagerState.currentPage == page
                 val size by animateDpAsState(
-                    targetValue = if (isSelected) itemSize * selectedScale else itemSize,
+                    targetValue = if (isSelected) selectedItemSize * selectedScale else itemSize,
                     label = "SizeAnimation"
                 )
 

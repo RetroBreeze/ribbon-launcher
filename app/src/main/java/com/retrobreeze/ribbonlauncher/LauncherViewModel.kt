@@ -19,6 +19,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_ENABLED_PACKAGES = "enabled_packages"
         private const val KEY_RIBBON_TITLE = "ribbon_title"
         private const val KEY_ICON_SIZE = "icon_size"
+        private const val KEY_SELECTED_ICON_SIZE = "selected_icon_size"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -48,6 +49,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     var iconSizeOption by mutableStateOf(IconSizeOption.FULL)
         private set
 
+    var selectedIconSizeOption by mutableStateOf(IconSizeOption.FULL)
+        private set
+
     init {
         loadPreferences()
         loadInstalledGames()
@@ -67,6 +71,12 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
         iconSizeOption = try {
             IconSizeOption.valueOf(prefs.getString(KEY_ICON_SIZE, IconSizeOption.FULL.name)!!)
+        } catch (_: IllegalArgumentException) {
+            IconSizeOption.FULL
+        }
+
+        selectedIconSizeOption = try {
+            IconSizeOption.valueOf(prefs.getString(KEY_SELECTED_ICON_SIZE, IconSizeOption.FULL.name)!!)
         } catch (_: IllegalArgumentException) {
             IconSizeOption.FULL
         }
@@ -164,6 +174,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     fun cycleIconSize() {
         iconSizeOption = iconSizeOption.next()
         prefs.edit().putString(KEY_ICON_SIZE, iconSizeOption.name).apply()
+    }
+
+    fun cycleSelectedIconSize() {
+        selectedIconSizeOption = selectedIconSizeOption.next()
+        prefs.edit().putString(KEY_SELECTED_ICON_SIZE, selectedIconSizeOption.name).apply()
     }
 
     fun updateSortMode(mode: SortMode) {

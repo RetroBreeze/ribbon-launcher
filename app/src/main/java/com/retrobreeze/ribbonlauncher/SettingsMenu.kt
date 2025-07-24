@@ -48,6 +48,7 @@ fun SettingsMenu(
     sortMode: SortMode,
     onSortClick: () -> Unit,
     onIconSizeClick: () -> Unit,
+    onSelectedIconSizeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -119,7 +120,9 @@ fun SettingsMenu(
                 Icon(
                     imageVector = Icons.Default.CropFree,
                     contentDescription = "Selected Icon Size",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onSelectedIconSizeClick() }
                 )
                 Spacer(Modifier.width(8.dp))
                 Icon(
@@ -159,5 +162,10 @@ fun SettingsMenu(
 @Preview
 @Composable
 private fun SettingsMenuPreview() {
-    SettingsMenu(sortMode = SortMode.AZ, onSortClick = {}, onIconSizeClick = {})
+    SettingsMenu(
+        sortMode = SortMode.AZ,
+        onSortClick = {},
+        onIconSizeClick = {},
+        onSelectedIconSizeClick = {}
+    )
 }
