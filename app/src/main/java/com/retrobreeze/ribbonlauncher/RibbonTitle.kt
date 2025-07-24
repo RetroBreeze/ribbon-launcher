@@ -67,7 +67,10 @@ fun RibbonTitle(
                     if (text.length > MAX_TITLE_LENGTH) text = text.take(MAX_TITLE_LENGTH)
                     localTitle = value.copy(text = text)
                 },
-                textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
+                textStyle = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize * 1.5f,
+                    color = Color.White
+                ),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
@@ -103,7 +106,9 @@ fun RibbonTitle(
         } else {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize * 1.5f
+                ),
                 color = Color.White,
                 modifier = Modifier.clickable {
                     localTitle = TextFieldValue(title, TextRange(0, title.length))
