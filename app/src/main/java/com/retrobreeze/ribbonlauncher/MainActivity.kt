@@ -133,8 +133,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 )
                 Spacer(Modifier.width(8.dp))
                 SettingsMenu(
-                    currentSortMode = sortMode,
-                    onSortSelected = { viewModel.updateSortMode(it) }
+                    sortMode = sortMode,
+                    onSortClick = { viewModel.cycleSortMode() }
                 )
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
