@@ -151,6 +151,13 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         sortGames()
     }
 
+    fun updateSortMode(mode: SortMode) {
+        sortMode = mode
+        prefs.edit().putString(KEY_SORT_MODE, sortMode.name).apply()
+
+        sortGames()
+    }
+
     fun setSelectedGame(packageName: String?) {
         selectedGamePackage = packageName
         with(prefs.edit()) {
