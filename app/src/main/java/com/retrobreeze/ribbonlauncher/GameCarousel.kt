@@ -81,11 +81,11 @@ fun GameCarousel(
     iconScale: Float,
     showLabels: Boolean = true,
     showEditButton: Boolean = true,
+    settingsExpanded: Boolean = false,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var showAppMenu by remember { mutableStateOf(false) }
     val baseItemSpacing = 12.dp
     val baseItemSize = 150.dp
 
@@ -138,7 +138,6 @@ fun GameCarousel(
     )
 
     LaunchedEffect(pagerState.currentPage) {
-        showAppMenu = false
         val newText = if (showEditButton && pagerState.currentPage == games.size) {
             "Edit"
         } else {
@@ -166,12 +165,6 @@ fun GameCarousel(
         }
     }
 
-    LaunchedEffect(showAppMenu) {
-        if (showAppMenu) {
-            kotlinx.coroutines.delay(4000)
-            showAppMenu = false
-        }
-    }
 
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val targetPadding = ((screenWidthDp - maxPageWidth) / 2).coerceAtLeast(0.dp)
@@ -270,22 +263,15 @@ fun GameCarousel(
                                 scaleX = scale
                                 scaleY = scale
                             }
-                            .combinedClickable(
-                                onClick = {
-                                    if (isSelected) {
-                                        if (showAppMenu) {
-                                            showAppMenu = false
-                                        } else {
-                                            onLaunch(game)
-                                        }
-                                    } else {
-                                        coroutineScope.launch {
-                                            pagerState.animateScrollToPage(page)
-                                        }
+                            .clickable {
+                                if (isSelected) {
+                                    onLaunch(game)
+                                } else {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(page)
                                     }
-                                },
-                                onLongClick = { if (isSelected) showAppMenu = true }
-                            )
+                                }
+                            }
 
                         Box(
                             modifier = gameModifier,
@@ -297,20 +283,7 @@ fun GameCarousel(
                                 iconSize = size,
                                 showReflection = !isResizing
                             )
-                            if (isSelected) {
-                                AppEditMenu(
-                                    visible = showAppMenu,
-                                    iconSize = size * 0.16f,
-                                    onPinToggle = {},
-                                    onCustomTitle = {},
-                                    onCustomIcon = {},
-                                    onCustomWallpaper = {},
-                                    onReset = {},
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .offset(y = -(size * 0.125f))
-                                )
-                            }
+                            // menu moved below label when settings are open
                         }
                     }
                 }
@@ -369,6 +342,18 @@ fun GameCarousel(
                             .alpha(animatedAlpha)
                     )
                 }
+            }
+            if (settingsExpanded && pagerState.currentPage < games.size) {
+                Spacer(Modifier.height(8.dp))
+                AppEditMenu(
+                    visible = true,
+                    iconSize = 24.dp,
+                    onPinToggle = {},
+                    onCustomTitle = {},
+                    onCustomIcon = {},
+                    onCustomWallpaper = {},
+                    onReset = {}
+                )
             }
         }
     }

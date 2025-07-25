@@ -74,6 +74,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
+    var settingsMenuExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
     LaunchedEffect(pagerState.currentPage, games) {
@@ -100,6 +101,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     iconScale = viewModel.iconSizeOption.multiplier,
                     showLabels = viewModel.showLabels,
                     showEditButton = !viewModel.settingsLocked,
+                    settingsExpanded = settingsMenuExpanded,
                     onLaunch = { game ->
                         val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
                         if (intent != null) {
@@ -168,6 +170,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     onToggleLabels = { viewModel.toggleShowLabels() },
                     onWallpaperClick = { showWallpaperDialog = true },
                     locked = viewModel.settingsLocked,
+                    expanded = settingsMenuExpanded,
+                    onExpandedChange = { settingsMenuExpanded = it },
                     onLockToggle = { viewModel.toggleSettingsLocked() },
                     onResetClick = { showResetDialog = true }
                 )

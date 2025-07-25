@@ -52,11 +52,12 @@ fun SettingsMenu(
     onToggleLabels: () -> Unit,
     onWallpaperClick: () -> Unit,
     locked: Boolean,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
     onLockToggle: () -> Unit,
     onResetClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
     var showSortLabel by remember { mutableStateOf(false) }
 
     LaunchedEffect(sortMode) {
@@ -80,7 +81,7 @@ fun SettingsMenu(
             contentDescription = "Settings",
             modifier = Modifier
                 .alpha(if (locked) 0.3f else 1f)
-                .clickable { expanded = !expanded }
+                .clickable { onExpandedChange(!expanded) }
         )
         AnimatedVisibility(
             visible = expanded,
@@ -153,7 +154,7 @@ fun SettingsMenu(
                         .size(24.dp)
                         .clickable {
                             onLockToggle()
-                            if (!locked) expanded = false
+                            if (!locked) onExpandedChange(false)
                         }
                 )
                 Spacer(Modifier.width(8.dp))
@@ -183,6 +184,8 @@ private fun SettingsMenuPreview() {
         onToggleLabels = {},
         onWallpaperClick = {},
         locked = false,
+        expanded = true,
+        onExpandedChange = {},
         onLockToggle = {},
         onResetClick = {}
     )
