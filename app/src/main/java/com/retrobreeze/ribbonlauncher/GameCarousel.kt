@@ -297,6 +297,18 @@ fun GameCarousel(
                                 iconSize = size,
                                 showReflection = !isResizing
                             )
+                            if (isSelected) {
+                                AppEditMenu(
+                                    visible = showAppMenu,
+                                    onCustomTitle = {},
+                                    onCustomIcon = {},
+                                    onCustomWallpaper = {},
+                                    onReset = {},
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .offset(y = -(size * 0.125f))
+                                )
+                            }
                         }
                     }
                 }
@@ -339,16 +351,6 @@ fun GameCarousel(
                 .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AppEditMenu(
-                visible = showAppMenu,
-                onCustomTitle = {},
-                onCustomIcon = {},
-                onCustomWallpaper = {},
-                onReset = {}
-            )
-            if (showAppMenu) {
-                Spacer(Modifier.height(8.dp))
-            }
             labelBitmap?.let {
                 Box(
                     modifier = Modifier
