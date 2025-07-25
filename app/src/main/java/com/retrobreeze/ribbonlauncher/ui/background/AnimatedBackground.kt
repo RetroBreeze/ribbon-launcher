@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -17,12 +18,14 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import com.retrobreeze.ribbonlauncher.ui.background.WallpaperTheme
 import kotlin.math.PI
 import kotlin.math.sin
+import com.retrobreeze.ribbonlauncher.util.rememberParallaxOffset
 
 @Composable
 fun AnimatedBackground(
     theme: WallpaperTheme,
     modifier: Modifier = Modifier
 ) {
+    val parallaxOffset = rememberParallaxOffset()
     val animatedStart by androidx.compose.animation.animateColorAsState(
         targetValue = theme.startColor,
         animationSpec = tween(durationMillis = 600),
@@ -53,7 +56,12 @@ fun AnimatedBackground(
         ), label = "wave2"
     )
 
-    androidx.compose.foundation.Canvas(modifier = modifier) {
+    androidx.compose.foundation.Canvas(
+        modifier = modifier.graphicsLayer {
+            translationX = parallaxOffset.value.x
+            translationY = parallaxOffset.value.y
+        }
+    ) {
         drawRect(
             brush = Brush.radialGradient(
                 colors = gradientColors,
