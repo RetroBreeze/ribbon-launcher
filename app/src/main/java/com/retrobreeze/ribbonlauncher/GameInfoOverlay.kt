@@ -27,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -169,6 +170,10 @@ fun GameInfoOverlay(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            Text(
+                                text = "Icon",
+                                style = MaterialTheme.typography.labelLarge
+                            )
                             Box(modifier = Modifier.size(120.dp)) {
                                 Image(
                                     painter = rememberAsyncImagePainter(customization?.iconUri ?: game.icon),
@@ -176,15 +181,16 @@ fun GameInfoOverlay(
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
+                            Spacer(Modifier.height(8.dp))
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                IconButton(onClick = { iconPicker.launch("image/*") }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                                androidx.compose.material3.Button(onClick = { iconPicker.launch("image/*") }) {
+                                    Text("Change")
                                 }
+                                Spacer(Modifier.width(8.dp))
                                 IconButton(onClick = { onIconChange(null) }) {
-                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                    Icon(Icons.Default.Refresh, contentDescription = "Reset")
                                 }
                             }
                         }
@@ -193,6 +199,10 @@ fun GameInfoOverlay(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            Text(
+                                text = "Wallpaper",
+                                style = MaterialTheme.typography.labelLarge
+                            )
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -216,15 +226,16 @@ fun GameInfoOverlay(
                                     )
                                 }
                             }
+                            Spacer(Modifier.height(8.dp))
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                IconButton(onClick = { wallpaperPicker.launch("image/*") }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                                androidx.compose.material3.Button(onClick = { wallpaperPicker.launch("image/*") }) {
+                                    Text("Change")
                                 }
+                                Spacer(Modifier.width(8.dp))
                                 IconButton(onClick = { onWallpaperChange(null) }) {
-                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                    Icon(Icons.Default.Refresh, contentDescription = "Reset")
                                 }
                             }
                         }
