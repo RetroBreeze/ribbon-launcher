@@ -40,6 +40,11 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.Density
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.ripple
+import androidx.compose.ui.input.pointer.pointerInput
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ArrowDirection
 import com.retrobreeze.ribbonlauncher.CarouselArrow
@@ -80,6 +85,7 @@ fun GameCarousel(
     showLabels: Boolean = true,
     showEditButton: Boolean = true,
     onLaunch: (GameEntry) -> Unit,
+    onLongPress: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -252,6 +258,7 @@ fun GameCarousel(
                         }
                     } else {
                         val game = games[page]
+                        val interaction = remember { MutableInteractionSource() }
                         val gameModifier = Modifier
                             .height(size + (size * 0.25f))
                             .width(size)
@@ -259,14 +266,16 @@ fun GameCarousel(
                                 scaleX = scale
                                 scaleY = scale
                             }
-                            .clickable {
-                                if (isSelected) {
-                                    onLaunch(game)
-                                } else {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(page)
+                            .indication(interaction, ripple())
+                            .pointerInput(isSelected) {
+                                detectTapGestures(
+                                    onTap = {
+                                        if (isSelected) onLaunch(game) else coroutineScope.launch { pagerState.animateScrollToPage(page) }
+                                    },
+                                    onLongPress = {
+                                        if (isSelected) onLongPress(game)
                                     }
-                                }
+                                )
                             }
 
                         Box(

@@ -1,34 +1,40 @@
 package com.retrobreeze.ribbonlauncher.ui.background
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.retrobreeze.ribbonlauncher.ui.background.WallpaperTheme
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
-import com.retrobreeze.ribbonlauncher.ui.background.WallpaperTheme
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberAsyncImagePainter
 import kotlin.math.PI
 import kotlin.math.sin
 
 @Composable
 fun AnimatedBackground(
     theme: WallpaperTheme,
+    wallpaperUri: String? = null,
     modifier: Modifier = Modifier
 ) {
-    val animatedStart by androidx.compose.animation.animateColorAsState(
+    val animatedStart by animateColorAsState(
         targetValue = theme.startColor,
         animationSpec = tween(durationMillis = 600),
         label = "startColor"
     )
-    val animatedEnd by androidx.compose.animation.animateColorAsState(
+    val animatedEnd by animateColorAsState(
         targetValue = theme.endColor,
         animationSpec = tween(durationMillis = 600),
         label = "endColor"
@@ -53,34 +59,45 @@ fun AnimatedBackground(
         ), label = "wave2"
     )
 
-    androidx.compose.foundation.Canvas(modifier = modifier) {
-        drawRect(
-            brush = Brush.radialGradient(
-                colors = gradientColors,
-                center = center,
-                radius = size.maxDimension
+    AnimatedContent(targetState = wallpaperUri, label = "wallpaper") { uri ->
+        if (uri != null) {
+            Image(
+                painter = rememberAsyncImagePainter(uri),
+                contentDescription = null,
+                modifier = modifier,
+                contentScale = ContentScale.Crop
             )
-        )
+        } else {
+            Canvas(modifier = modifier) {
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = gradientColors,
+                        center = center,
+                        radius = size.maxDimension
+                    )
+                )
 
-        fun Path.addWave(progress: Float, amplitude: Float, vertical: Float) {
-            val wavelength = size.width
-            val step = size.width / 20f
-            moveTo(-wavelength + progress * wavelength, vertical)
-            var x = -wavelength
-            while (x <= size.width + wavelength) {
-                val y = amplitude * sin(2 * PI * (x / wavelength) + progress * 2 * PI).toFloat() + vertical
-                lineTo(x + progress * wavelength, y)
-                x += step
+                fun Path.addWave(progress: Float, amplitude: Float, vertical: Float) {
+                    val wavelength = size.width
+                    val step = size.width / 20f
+                    moveTo(-wavelength + progress * wavelength, vertical)
+                    var x = -wavelength
+                    while (x <= size.width + wavelength) {
+                        val y = amplitude * sin(2 * PI * (x / wavelength) + progress * 2 * PI).toFloat() + vertical
+                        lineTo(x + progress * wavelength, y)
+                        x += step
+                    }
+                    lineTo(size.width + wavelength, size.height)
+                    lineTo(-wavelength, size.height)
+                    close()
+                }
+
+                val wave1 = Path().apply { addWave(wave1Offset, size.height * 0.05f, size.height * 0.65f) }
+                val wave2 = Path().apply { addWave(wave2Offset, size.height * 0.07f, size.height * 0.8f) }
+
+                drawPath(wave1, color = Color.White.copy(alpha = 0.08f), style = Fill)
+                drawPath(wave2, color = Color.White.copy(alpha = 0.04f), style = Fill)
             }
-            lineTo(size.width + wavelength, size.height)
-            lineTo(-wavelength, size.height)
-            close()
         }
-
-        val wave1 = Path().apply { addWave(wave1Offset, size.height * 0.05f, size.height * 0.65f) }
-        val wave2 = Path().apply { addWave(wave2Offset, size.height * 0.07f, size.height * 0.8f) }
-
-        drawPath(wave1, color = Color.White.copy(alpha = 0.08f), style = Fill)
-        drawPath(wave2, color = Color.White.copy(alpha = 0.04f), style = Fill)
     }
 }

@@ -35,6 +35,8 @@ import com.retrobreeze.ribbonlauncher.WallpaperThemeDialog
 import com.retrobreeze.ribbonlauncher.ResetConfirmationDialog
 import com.retrobreeze.ribbonlauncher.ui.background.AnimatedBackground
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
+import com.retrobreeze.ribbonlauncher.GameInfoOverlay
+import com.retrobreeze.ribbonlauncher.model.GameEntry
 
 class MainActivity : ComponentActivity() {
     private val launcherViewModel: LauncherViewModel by viewModels()
@@ -71,6 +73,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
+    var showInfoOverlay by remember { mutableStateOf(false) }
+    var overlayGame by remember { mutableStateOf<GameEntry?>(null) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
     LaunchedEffect(pagerState.currentPage, games) {
@@ -82,6 +86,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedBackground(
                 theme = viewModel.wallpaperTheme,
+                wallpaperUri = viewModel.getCustomization(viewModel.selectedGamePackage)?.wallpaperUri,
                 modifier = Modifier.fillMaxSize()
             )
             Box(
@@ -106,6 +111,10 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, uri))
                         }
                         viewModel.recordLaunch(game)
+                    },
+                    onLongPress = { game ->
+                        overlayGame = game
+                        showInfoOverlay = true
                     },
                     onEdit = { showEditDialog = true }
                 )
@@ -137,6 +146,15 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     showResetDialog = false
                 },
                 onDismiss = { showResetDialog = false }
+            )
+            GameInfoOverlay(
+                show = showInfoOverlay,
+                game = overlayGame,
+                customization = viewModel.getCustomization(overlayGame?.packageName),
+                onDismiss = { showInfoOverlay = false },
+                onLabelChange = { text -> overlayGame?.packageName?.let { viewModel.updateCustomLabel(it, text) } },
+                onIconChange = { uri -> overlayGame?.packageName?.let { viewModel.updateCustomIcon(it, uri) } },
+                onWallpaperChange = { uri -> overlayGame?.packageName?.let { viewModel.updateCustomWallpaper(it, uri) } }
             )
             Row(
                 modifier = Modifier
