@@ -300,6 +300,7 @@ fun GameCarousel(
                             if (isSelected) {
                                 AppEditMenu(
                                     visible = showAppMenu,
+                                    iconSize = size * 0.16f,
                                     onPinToggle = {},
                                     onCustomTitle = {},
                                     onCustomIcon = {},

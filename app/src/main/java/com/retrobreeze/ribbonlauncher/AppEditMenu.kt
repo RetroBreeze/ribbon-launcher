@@ -21,11 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun AppEditMenu(
     visible: Boolean,
+    iconSize: Dp,
     onPinToggle: () -> Unit,
     onCustomTitle: () -> Unit,
     onCustomIcon: () -> Unit,
@@ -45,50 +47,51 @@ fun AppEditMenu(
         ) + fadeOut(),
         modifier = modifier
     ) {
+        val spacing = iconSize * 0.33f
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.PushPin,
-                contentDescription = "Pin", 
+                contentDescription = "Pin",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(iconSize)
                     .clickable { onPinToggle() }
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(spacing))
             Divider(
                 modifier = Modifier
-                    .height(24.dp)
+                    .height(iconSize)
                     .width(1.dp)
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(spacing))
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = "Custom Title",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(iconSize)
                     .clickable { onCustomTitle() }
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(spacing))
             Icon(
                 imageVector = Icons.Default.AutoAwesome,
                 contentDescription = "Custom Icon",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(iconSize)
                     .clickable { onCustomIcon() }
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(spacing))
             Icon(
                 imageVector = Icons.Default.Photo,
                 contentDescription = "Custom Wallpaper",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(iconSize)
                     .clickable { onCustomWallpaper() }
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(spacing))
             Icon(
                 imageVector = Icons.Default.Replay,
                 contentDescription = "Reset All",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(iconSize)
                     .clickable { onReset() }
             )
         }
@@ -100,6 +103,7 @@ fun AppEditMenu(
 private fun AppEditMenuPreview() {
     AppEditMenu(
         visible = true,
+        iconSize = 24.dp,
         onPinToggle = {},
         onCustomTitle = {},
         onCustomIcon = {},
