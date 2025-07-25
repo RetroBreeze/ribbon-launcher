@@ -11,6 +11,7 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.Density
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ArrowDirection
 import com.retrobreeze.ribbonlauncher.CarouselArrow
+import com.retrobreeze.ribbonlauncher.AppEditMenu
 import kotlinx.coroutines.launch
 
 fun renderTextToBitmap(
@@ -83,6 +85,7 @@ fun GameCarousel(
     onEdit: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    var showAppMenu by remember { mutableStateOf(false) }
     val baseItemSpacing = 12.dp
     val baseItemSize = 150.dp
 
@@ -135,6 +138,7 @@ fun GameCarousel(
     )
 
     LaunchedEffect(pagerState.currentPage) {
+        showAppMenu = false
         val newText = if (showEditButton && pagerState.currentPage == games.size) {
             "Edit"
         } else {
@@ -259,15 +263,18 @@ fun GameCarousel(
                                 scaleX = scale
                                 scaleY = scale
                             }
-                            .clickable {
-                                if (isSelected) {
-                                    onLaunch(game)
-                                } else {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(page)
+                            .combinedClickable(
+                                onClick = {
+                                    if (isSelected) {
+                                        onLaunch(game)
+                                    } else {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(page)
+                                        }
                                     }
-                                }
-                            }
+                                },
+                                onLongClick = { if (isSelected) showAppMenu = true }
+                            )
 
                         Box(
                             modifier = gameModifier,
@@ -315,23 +322,38 @@ fun GameCarousel(
             height = arrowHeight
         )
 
-        labelBitmap?.let {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
-                    .fillMaxWidth()
-                    .height(64.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    bitmap = it,
-                    contentDescription = currentText,
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AppEditMenu(
+                visible = showAppMenu,
+                onCustomTitle = {},
+                onCustomIcon = {},
+                onCustomWallpaper = {},
+                onReset = {}
+            )
+            if (showAppMenu) {
+                Spacer(Modifier.height(8.dp))
+            }
+            labelBitmap?.let {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
-                        .alpha(animatedAlpha)
-                )
+                        .height(64.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        bitmap = it,
+                        contentDescription = currentText,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .alpha(animatedAlpha)
+                    )
+                }
             }
         }
     }
