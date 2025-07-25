@@ -70,11 +70,25 @@ fun GameInfoOverlay(
     var editingTitle by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    var tempIconUri by remember { mutableStateOf(customization?.iconUri) }
+    var tempWallpaperUri by remember { mutableStateOf(customization?.wallpaperUri) }
+
+    LaunchedEffect(game.packageName) {
+        tempIconUri = customization?.iconUri
+        tempWallpaperUri = customization?.wallpaperUri
+    }
+
     val iconPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { onIconChange(it.toString()) }
+        uri?.let {
+            tempIconUri = it.toString()
+            onIconChange(it.toString())
+        }
     }
     val wallpaperPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { onWallpaperChange(it.toString()) }
+        uri?.let {
+            tempWallpaperUri = it.toString()
+            onWallpaperChange(it.toString())
+        }
     }
 
     Dialog(
@@ -175,8 +189,9 @@ fun GameInfoOverlay(
                                 style = MaterialTheme.typography.labelLarge
                             )
                             Box(modifier = Modifier.size(120.dp)) {
+                                val iconSource = tempIconUri ?: customization?.iconUri
                                 Image(
-                                    painter = rememberAsyncImagePainter(customization?.iconUri ?: game.icon),
+                                    painter = rememberAsyncImagePainter(iconSource ?: game.icon),
                                     contentDescription = null,
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -189,7 +204,10 @@ fun GameInfoOverlay(
                                     Text("Change")
                                 }
                                 Spacer(Modifier.width(8.dp))
-                                IconButton(onClick = { onIconChange(null) }) {
+                                IconButton(onClick = {
+                                    tempIconUri = null
+                                    onIconChange(null)
+                                }) {
                                     Icon(Icons.Default.Refresh, contentDescription = "Reset")
                                 }
                             }
@@ -208,9 +226,10 @@ fun GameInfoOverlay(
                                     .fillMaxWidth()
                                     .height(120.dp)
                             ) {
-                                if (customization?.wallpaperUri != null) {
+                                val wallpaperSource = tempWallpaperUri ?: customization?.wallpaperUri
+                                if (wallpaperSource != null) {
                                     Image(
-                                        painter = rememberAsyncImagePainter(customization.wallpaperUri!!),
+                                        painter = rememberAsyncImagePainter(wallpaperSource),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .fillMaxSize()
@@ -234,7 +253,10 @@ fun GameInfoOverlay(
                                     Text("Change")
                                 }
                                 Spacer(Modifier.width(8.dp))
-                                IconButton(onClick = { onWallpaperChange(null) }) {
+                                IconButton(onClick = {
+                                    tempWallpaperUri = null
+                                    onWallpaperChange(null)
+                                }) {
                                     Icon(Icons.Default.Refresh, contentDescription = "Reset")
                                 }
                             }
@@ -254,6 +276,13 @@ fun GameInfoOverlay(
                             contentDescription = "Google Play",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("OK")
                     }
                 }
             }
