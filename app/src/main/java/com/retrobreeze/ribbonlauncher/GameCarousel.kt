@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -34,6 +35,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.ImageBitmap
@@ -41,11 +44,25 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.Density
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.ui.graphics.Color
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ArrowDirection
 import com.retrobreeze.ribbonlauncher.CarouselArrow
 import com.retrobreeze.ribbonlauncher.AppEditMenu
 import kotlinx.coroutines.launch
+
+private const val MAX_GAME_TITLE_LENGTH = 30
 
 fun renderTextToBitmap(
     text: String,
@@ -84,7 +101,10 @@ fun GameCarousel(
     settingsExpanded: Boolean = false,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit,
-    onEditTitle: (GameEntry) -> Unit
+    editingPackage: String? = null,
+    onEditTitle: (GameEntry) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onFinishEditing: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val baseItemSpacing = 12.dp
@@ -327,22 +347,37 @@ fun GameCarousel(
                 .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            labelBitmap?.let {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        bitmap = it,
-                        contentDescription = currentText,
+            val editing = editingPackage == games.getOrNull(pagerState.currentPage)?.packageName
+            val currentGame = games.getOrNull(pagerState.currentPage)
+            if (!editing) {
+                labelBitmap?.let {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
-                            .alpha(animatedAlpha)
-                    )
+                            .height(64.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            bitmap = it,
+                            contentDescription = currentText,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .alpha(animatedAlpha)
+                        )
+                    }
                 }
+            } else if (currentGame != null) {
+                InlineTitleEditor(
+                    title = currentGame.displayName,
+                    onDone = { title ->
+                        onTitleChange(title)
+                        onFinishEditing()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                )
             }
             if (settingsExpanded && pagerState.currentPage < games.size) {
                 Spacer(Modifier.height(4.dp))
@@ -417,6 +452,67 @@ fun ReflectiveGameIcon(
                     alignment = Alignment.BottomCenter
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun InlineTitleEditor(
+    title: String,
+    onDone: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var value by remember { mutableStateOf(TextFieldValue(title)) }
+    val focusRequester = remember { FocusRequester() }
+    var hadFocus by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboard?.show()
+    }
+
+    Row(
+        modifier = modifier.height(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BasicTextField(
+            value = value,
+            onValueChange = {
+                var text = it.text.replace("\n", "")
+                if (text.length > MAX_GAME_TITLE_LENGTH) text = text.take(MAX_GAME_TITLE_LENGTH)
+                value = it.copy(text = text)
+            },
+            textStyle = MaterialTheme.typography.titleMedium.copy(color = Color.White),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                focusManager.clearFocus()
+                onDone(value.text)
+            }),
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .onFocusChanged { state ->
+                    if (state.isFocused) {
+                        hadFocus = true
+                        value = value.copy(selection = TextRange(0, value.text.length))
+                    } else if (hadFocus) {
+                        hadFocus = false
+                        onDone(value.text)
+                    }
+                }
+        )
+        Spacer(Modifier.width(4.dp))
+        IconButton(
+            onClick = {
+                focusManager.clearFocus()
+                onDone(value.text)
+            },
+            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent)
+        ) {
+            Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
         }
     }
 }
