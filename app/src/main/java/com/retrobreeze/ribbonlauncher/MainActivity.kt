@@ -151,7 +151,10 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 show = showInfoOverlay,
                 game = overlayGame,
                 customization = viewModel.getCustomization(overlayGame?.packageName),
-                onDismiss = { showInfoOverlay = false },
+                onDismiss = {
+                    showInfoOverlay = false
+                    overlayGame = null
+                },
                 onLabelChange = { text -> overlayGame?.packageName?.let { viewModel.updateCustomLabel(it, text) } },
                 onIconChange = { uri -> overlayGame?.packageName?.let { viewModel.updateCustomIcon(it, uri) } },
                 onWallpaperChange = { uri -> overlayGame?.packageName?.let { viewModel.updateCustomWallpaper(it, uri) } }

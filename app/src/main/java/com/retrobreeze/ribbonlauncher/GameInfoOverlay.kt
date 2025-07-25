@@ -77,33 +77,34 @@ fun GameInfoOverlay(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = true)
     ) {
-        var dragOffset by remember { mutableStateOf(0f) }
-        val threshold = with(LocalContext.current.resources.displayMetrics) { 80 * density }
-        AnimatedVisibility(
-            visible = show,
-            enter = slideInVertically(animationSpec = tween(), initialOffsetY = { it }) + fadeIn(),
-            exit = slideOutVertically(animationSpec = tween(), targetOffsetY = { it }) + fadeOut()
-        ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-                    .offset { IntOffset(0, dragOffset.roundToInt()) }
-                    .pointerInput(Unit) {
-                        detectVerticalDragGestures(
-                            onVerticalDrag = { _, delta -> dragOffset = (dragOffset + delta).coerceAtLeast(0f) },
-                            onDragEnd = {
-                                if (dragOffset > threshold) onDismiss()
-                                dragOffset = 0f
-                            }
-                        )
-                    },
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+            var dragOffset by remember { mutableStateOf(0f) }
+            val threshold = with(LocalContext.current.resources.displayMetrics) { 80 * density }
+            AnimatedVisibility(
+                visible = show,
+                enter = slideInVertically(animationSpec = tween(), initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(animationSpec = tween(), targetOffsetY = { it }) + fadeOut()
             ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(horizontal = 24.dp, vertical = 24.dp)
+                        .offset { IntOffset(0, dragOffset.roundToInt()) }
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onVerticalDrag = { _, delta -> dragOffset = (dragOffset + delta).coerceAtLeast(0f) },
+                                onDragEnd = {
+                                    if (dragOffset > threshold) onDismiss()
+                                    dragOffset = 0f
+                                }
+                            )
+                        },
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -215,4 +216,6 @@ fun GameInfoOverlay(
             }
         }
     }
+}
+
 }
