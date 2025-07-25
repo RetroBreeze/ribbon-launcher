@@ -317,6 +317,10 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     fun updateCustomIcon(packageName: String, uri: Uri) {
         val context = getApplication<Application>().applicationContext
         try {
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
             context.contentResolver.openInputStream(uri)?.use { stream ->
                 val drawable = Drawable.createFromStream(stream, uri.toString()) ?: return
                 customIcons[packageName] = drawable

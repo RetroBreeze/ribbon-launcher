@@ -79,7 +79,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var settingsMenuExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
-    val pickIconLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    val pickIconLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { selectedUri ->
             viewModel.selectedGamePackage?.let { pkg ->
                 viewModel.updateCustomIcon(pkg, selectedUri)
@@ -125,7 +125,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     },
                     onEdit = { showEditDialog = true },
                     onPinToggle = { viewModel.togglePin(it.packageName) },
-                    onCustomIcon = { pickIconLauncher.launch("image/*") }
+                    onCustomIcon = { pickIconLauncher.launch(arrayOf("image/*")) }
                 )
             }
             AppDrawerOverlay(
