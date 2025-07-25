@@ -119,11 +119,6 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 onDismiss = { showDrawer = false },
                 modifier = Modifier.align(Alignment.Center)
             )
-            SettingsPage(
-                show = showSettingsPage,
-                onDismiss = { showSettingsPage = false },
-                modifier = Modifier.align(Alignment.Center)
-            )
             EditAppsDialog(
                 show = showEditDialog,
                 allApps = viewModel.getAllInstalledApps(),
@@ -178,17 +173,22 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 )
             }
             StatusTopBar(modifier = Modifier.align(Alignment.TopCenter))
-            SettingsBottomBar(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 24.dp, bottom = 24.dp),
-                onClick = { showSettingsPage = !showSettingsPage }
-            )
             NavigationBottomBar(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 24.dp, bottom = 24.dp),
                 onRightClick = { showDrawer = !showDrawer }
+            )
+            SettingsPage(
+                show = showSettingsPage,
+                onDismiss = { showSettingsPage = false },
+                modifier = Modifier.align(Alignment.Center)
+            )
+            SettingsBottomBar(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 24.dp, bottom = 24.dp),
+                onClick = { showSettingsPage = !showSettingsPage }
             )
         }
 
