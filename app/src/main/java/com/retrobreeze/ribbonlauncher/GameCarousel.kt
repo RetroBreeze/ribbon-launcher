@@ -82,8 +82,10 @@ fun GameCarousel(
     showLabels: Boolean = true,
     showEditButton: Boolean = true,
     settingsExpanded: Boolean = false,
+    pinnedCount: Int = 0,
     onLaunch: (GameEntry) -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onPinToggle: (GameEntry) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val baseItemSpacing = 12.dp
@@ -101,6 +103,13 @@ fun GameCarousel(
         targetValue = spacingTarget,
         animationSpec = tween(durationMillis = 300),
         label = "spacing"
+    )
+
+    // Extra padding around the pinned divider
+    val dividerPadding by animateDpAsState(
+        targetValue = itemSpacing * 2,
+        animationSpec = tween(durationMillis = 300),
+        label = "dividerPadding"
     )
 
     var isResizing by remember { mutableStateOf(false) }
@@ -223,11 +232,12 @@ fun GameCarousel(
                 val size = itemSize
 
                 val offset = if (!isEditPage) animatables[games[page].packageName]?.value ?: 0f else 0f
+                val pinnedOffset = if (pinnedCount > 0 && page >= pinnedCount) dividerPadding else 0.dp
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .graphicsLayer { translationX = offset },
+                        .graphicsLayer { translationX = offset + with(density) { pinnedOffset.toPx() } },
                     contentAlignment = Alignment.Center
                 ) {
                     if (isEditPage) {
@@ -255,23 +265,23 @@ fun GameCarousel(
                             Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
                         }
                     } else {
-                        val game = games[page]
-                        val gameModifier = Modifier
-                            .height(size + (size * 0.25f))
-                            .width(size)
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                            }
-                            .clickable {
-                                if (isSelected) {
-                                    onLaunch(game)
-                                } else {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(page)
-                                    }
+                    val game = games[page]
+                    val gameModifier = Modifier
+                        .height(size + (size * 0.25f))
+                        .width(size)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                        .clickable {
+                            if (isSelected) {
+                                onLaunch(game)
+                            } else {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(page)
                                 }
                             }
+                        }
 
                         Box(
                             modifier = gameModifier,
@@ -285,6 +295,17 @@ fun GameCarousel(
                             )
                             // menu moved below label when settings are open
                         }
+                    }
+                    if (pinnedCount > 0 && page == pinnedCount - 1) {
+                        val lineHeight = size * scale * 0.75f
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .offset(x = itemSpacing / 2 + dividerPadding / 2)
+                                .height(lineHeight)
+                                .width(1.dp)
+                                .background(Color.White.copy(alpha = 0.3f))
+                        )
                     }
                 }
             }
@@ -348,7 +369,7 @@ fun GameCarousel(
                 AppEditMenu(
                     visible = true,
                     iconSize = 24.dp,
-                    onPinToggle = {},
+                    onPinToggle = { onPinToggle(games[pagerState.currentPage]) },
                     onCustomTitle = {},
                     onCustomIcon = {},
                     onCustomWallpaper = {},
