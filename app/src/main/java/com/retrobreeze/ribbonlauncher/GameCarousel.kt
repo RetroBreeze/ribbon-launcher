@@ -289,10 +289,12 @@ fun GameCarousel(
                         }
                     }
                     if (pinnedCount > 0 && page == pinnedCount - 1) {
+                        val lineHeight = size * scale * 0.75f
                         Box(
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
-                                .fillMaxHeight()
+                                .offset(x = itemSpacing / 2)
+                                .height(lineHeight)
                                 .width(1.dp)
                                 .background(Color.White.copy(alpha = 0.3f))
                         )
