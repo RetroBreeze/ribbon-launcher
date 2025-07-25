@@ -9,6 +9,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -26,6 +32,20 @@ fun AnimatedBackground(
     modifier: Modifier = Modifier
 ) {
     val parallaxOffset = rememberParallaxOffset()
+    val offsetConverter = remember {
+        TwoWayConverter<Offset, AnimationVector2D>(
+            convertToVector = { AnimationVector2D(it.x, it.y) },
+            convertFromVector = { Offset(it.v1, it.v2) }
+        )
+    }
+    val animatedOffset = remember { Animatable<Offset, AnimationVector2D>(Offset.Zero, offsetConverter) }
+
+    LaunchedEffect(parallaxOffset.value) {
+        animatedOffset.animateTo(
+            parallaxOffset.value,
+            animationSpec = tween(durationMillis = 300)
+        )
+    }
     val animatedStart by androidx.compose.animation.animateColorAsState(
         targetValue = theme.startColor,
         animationSpec = tween(durationMillis = 600),
@@ -58,8 +78,8 @@ fun AnimatedBackground(
 
     androidx.compose.foundation.Canvas(
         modifier = modifier.graphicsLayer {
-            translationX = parallaxOffset.value.x
-            translationY = parallaxOffset.value.y
+            translationX = animatedOffset.value.x
+            translationY = animatedOffset.value.y
         }
     ) {
         drawRect(
