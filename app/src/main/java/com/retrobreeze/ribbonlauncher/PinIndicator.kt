@@ -2,13 +2,14 @@ package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -18,11 +19,17 @@ fun PinIndicator(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = slideInHorizontally(animationSpec = tween(), initialOffsetX = { -it }),
-        exit = slideOutHorizontally(animationSpec = tween(), targetOffsetX = { -it }),
+        enter = expandHorizontally(
+            expandFrom = Alignment.Start,
+            animationSpec = tween()
+        ),
+        exit = shrinkHorizontally(
+            shrinkTowards = Alignment.Start,
+            animationSpec = tween()
+        ),
         modifier = modifier
     ) {
-        Icon(imageVector = Icons.Default.PushPin, contentDescription = "Pin")
+        Icon(imageVector = Icons.Default.Lightbulb, contentDescription = "Pin")
     }
 }
 
