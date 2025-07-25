@@ -82,8 +82,10 @@ fun GameCarousel(
     showLabels: Boolean = true,
     showEditButton: Boolean = true,
     settingsExpanded: Boolean = false,
+    pinnedCount: Int = 0,
     onLaunch: (GameEntry) -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onPinToggle: (GameEntry) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val baseItemSpacing = 12.dp
@@ -286,6 +288,15 @@ fun GameCarousel(
                             // menu moved below label when settings are open
                         }
                     }
+                    if (pinnedCount > 0 && page == pinnedCount - 1) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxHeight()
+                                .width(1.dp)
+                                .background(Color.White.copy(alpha = 0.3f))
+                        )
+                    }
                 }
             }
         }
@@ -348,7 +359,7 @@ fun GameCarousel(
                 AppEditMenu(
                     visible = true,
                     iconSize = 24.dp,
-                    onPinToggle = {},
+                    onPinToggle = { onPinToggle(games[pagerState.currentPage]) },
                     onCustomTitle = {},
                     onCustomIcon = {},
                     onCustomWallpaper = {},

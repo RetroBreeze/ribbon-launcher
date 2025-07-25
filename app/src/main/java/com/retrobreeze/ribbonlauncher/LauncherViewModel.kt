@@ -23,6 +23,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_SHOW_LABELS = "show_labels"
         private const val KEY_WALLPAPER_THEME = "wallpaper_theme"
         private const val KEY_SETTINGS_LOCKED = "settings_locked"
+        private const val KEY_PINNED_PACKAGES = "pinned_packages"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -61,6 +62,12 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     var settingsLocked by mutableStateOf(false)
         private set
 
+    var pinnedPackages by mutableStateOf<List<String>>(emptyList())
+        private set
+
+    val visiblePinnedCount: Int
+        get() = pinnedPackages.count { enabledPackages.contains(it) }
+
     init {
         loadPreferences()
         loadInstalledGames()
@@ -93,6 +100,10 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         showLabels = prefs.getBoolean(KEY_SHOW_LABELS, true)
 
         settingsLocked = prefs.getBoolean(KEY_SETTINGS_LOCKED, false)
+
+        pinnedPackages = prefs.getString(KEY_PINNED_PACKAGES, "")
+            ?.takeIf { it.isNotEmpty() }
+            ?.split(',') ?: emptyList()
 
         enabledPackages = if (prefs.contains(KEY_ENABLED_PACKAGES)) {
             prefs.getStringSet(KEY_ENABLED_PACKAGES, emptySet())?.toSet() ?: emptySet()
@@ -234,6 +245,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     fun resetLauncher() {
         prefs.edit().clear().apply()
         lastPlayed.clear()
+        pinnedPackages = emptyList()
         loadPreferences()
         sortGames()
     }
@@ -278,6 +290,14 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         sortGames()
     }
 
+    fun togglePin(packageName: String) {
+        pinnedPackages = pinnedPackages.toMutableList().apply {
+            if (contains(packageName)) remove(packageName) else add(packageName)
+        }
+        prefs.edit().putString(KEY_PINNED_PACKAGES, pinnedPackages.joinToString(",")).apply()
+        sortGames()
+    }
+
     fun getAllInstalledApps(): List<GameEntry> {
         return (allGames + apps).sortedBy { it.displayName.lowercase() }
     }
@@ -295,14 +315,21 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         val allEntries = (allGames + apps)
         val selectedEntries = allEntries.filter { enabledPackages.contains(it.packageName) }
 
-        games = when (sortMode) {
-            SortMode.AZ -> selectedEntries.sortedBy { it.displayName.lowercase() }
-            SortMode.ZA -> selectedEntries.sortedByDescending { it.displayName.lowercase() }
-            SortMode.RECENT -> selectedEntries.sortedWith(
+        val pinned = pinnedPackages.mapNotNull { pkg ->
+            selectedEntries.find { it.packageName == pkg }
+        }
+        val unpinned = selectedEntries.filterNot { pinnedPackages.contains(it.packageName) }
+
+        val sortedUnpinned = when (sortMode) {
+            SortMode.AZ -> unpinned.sortedBy { it.displayName.lowercase() }
+            SortMode.ZA -> unpinned.sortedByDescending { it.displayName.lowercase() }
+            SortMode.RECENT -> unpinned.sortedWith(
                 compareByDescending<GameEntry> { lastPlayed[it.packageName] ?: Long.MIN_VALUE }
                     .thenBy { it.displayName.lowercase() }
             )
         }
+
+        games = pinned + sortedUnpinned
     }
 
 }

@@ -102,6 +102,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     showLabels = viewModel.showLabels,
                     showEditButton = !viewModel.settingsLocked,
                     settingsExpanded = settingsMenuExpanded,
+                    pinnedCount = viewModel.visiblePinnedCount,
                     onLaunch = { game ->
                         val intent = context.packageManager.getLaunchIntentForPackage(game.packageName)
                         if (intent != null) {
@@ -112,7 +113,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                         }
                         viewModel.recordLaunch(game)
                     },
-                    onEdit = { showEditDialog = true }
+                    onEdit = { showEditDialog = true },
+                    onPinToggle = { viewModel.togglePin(it.packageName) }
                 )
             }
             AppDrawerOverlay(
