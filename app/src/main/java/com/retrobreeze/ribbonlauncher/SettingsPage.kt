@@ -2,6 +2,8 @@ package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -30,33 +32,32 @@ fun SettingsPage(
         color = surfaceColor,
         contentColor = contentColor
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(16.dp))
-            SettingsOption("Upgrade to premium")
-            SettingsOption("Theme: light, dark, OLED")
-            SettingsToggleOption("Graphic mode: fancy / performance")
-            SettingsToggleOption("Reverse A/B buttons")
-            SettingsOption("Set as home")
-            SettingsOption("Export settings")
-            SettingsOption("Import settings")
-            SettingsOption("Reset all settings")
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "Tap anywhere to return",
-                style = MaterialTheme.typography.labelSmall,
+        Row(modifier = Modifier.fillMaxSize()) {
+            Spacer(Modifier.width(88.dp))
+            Column(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .clickable { onDismiss() }
-            )
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Settings",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.height(16.dp))
+                SettingsOption("Upgrade to premium")
+                SettingsOption("Theme: light, dark, OLED")
+                SettingsToggleOption("Graphic mode: fancy / performance")
+                SettingsToggleOption("Reverse A/B buttons")
+                SettingsOption("Set as home")
+                SettingsOption("Export settings")
+                SettingsOption("Import settings")
+                SettingsOption("Reset all settings")
+                Spacer(modifier = Modifier.weight(1f))
+                AboutSection()
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
@@ -86,6 +87,22 @@ private fun SettingsToggleOption(label: String) {
     ) {
         Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Switch(checked = checked, onCheckedChange = { checked = it })
+    }
+}
+
+@Composable
+private fun AboutSection() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "About",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text("Ribbon Launcher v1.0", style = MaterialTheme.typography.bodyMedium)
+        Text("\u00A9 2025 RetroBreeze", style = MaterialTheme.typography.bodySmall)
     }
 }
 

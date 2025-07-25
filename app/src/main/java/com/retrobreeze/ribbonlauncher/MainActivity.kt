@@ -182,7 +182,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 24.dp, bottom = 24.dp),
-                onClick = { showSettingsPage = true }
+                onClick = { showSettingsPage = !showSettingsPage }
             )
             NavigationBottomBar(
                 modifier = Modifier
