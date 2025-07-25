@@ -3,8 +3,9 @@ package com.retrobreeze.ribbonlauncher
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,8 +34,14 @@ fun AppEditMenu(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
-        exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
+        enter = slideInHorizontally(
+            animationSpec = tween(),
+            initialOffsetX = { -it }
+        ) + fadeIn(),
+        exit = slideOutHorizontally(
+            animationSpec = tween(),
+            targetOffsetX = { -it }
+        ) + fadeOut(),
         modifier = modifier
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
