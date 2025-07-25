@@ -23,6 +23,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_SHOW_LABELS = "show_labels"
         private const val KEY_WALLPAPER_THEME = "wallpaper_theme"
         private const val KEY_SETTINGS_LOCKED = "settings_locked"
+        private const val KEY_CUSTOM_TITLE_PREFIX = "title_"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -42,6 +43,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     private val lastPlayed = mutableStateMapOf<String, Long>()
+
+    private val customTitles = mutableStateMapOf<String, String>()
 
     var selectedGamePackage by mutableStateOf<String?>(null)
         private set
@@ -109,6 +112,10 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     else -> return@forEach
                 }
                 lastPlayed[packageName] = time
+            } else if (key.startsWith(KEY_CUSTOM_TITLE_PREFIX)) {
+                val packageName = key.removePrefix(KEY_CUSTOM_TITLE_PREFIX)
+                val title = value as? String ?: return@forEach
+                customTitles[packageName] = title
             }
         }
     }
@@ -137,7 +144,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
             .map { appInfo ->
                 GameEntry(
                     packageName = appInfo.packageName,
-                    displayName = pm.getApplicationLabel(appInfo).toString(),
+                    displayName = customTitles[appInfo.packageName]
+                        ?: pm.getApplicationLabel(appInfo).toString(),
                     icon = pm.getApplicationIcon(appInfo)
                 )
             }
@@ -169,7 +177,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
             .map { appInfo ->
                 GameEntry(
                     packageName = appInfo.packageName,
-                    displayName = pm.getApplicationLabel(appInfo).toString(),
+                    displayName = customTitles[appInfo.packageName]
+                        ?: pm.getApplicationLabel(appInfo).toString(),
                     icon = pm.getApplicationIcon(appInfo)
                 )
             }
@@ -219,6 +228,37 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
     fun updateRibbonTitle(title: String) {
         ribbonTitle = title
         prefs.edit().putString(KEY_RIBBON_TITLE, title).apply()
+    }
+
+    fun updateGameTitle(packageName: String, title: String) {
+        val trimmed = title.trim()
+        if (trimmed.isBlank()) {
+            customTitles.remove(packageName)
+            prefs.edit().remove(KEY_CUSTOM_TITLE_PREFIX + packageName).apply()
+        } else {
+            customTitles[packageName] = trimmed
+            prefs.edit().putString(KEY_CUSTOM_TITLE_PREFIX + packageName, trimmed).apply()
+        }
+
+        val defaultName = getDefaultTitle(packageName)
+        val finalTitle = customTitles[packageName] ?: defaultName
+
+        fun List<GameEntry>.update(): List<GameEntry> =
+            map { if (it.packageName == packageName) it.copy(displayName = finalTitle) else it }
+
+        allGames = allGames.update()
+        apps = apps.update()
+        sortGames()
+    }
+
+    private fun getDefaultTitle(packageName: String): String {
+        val pm = getApplication<Application>().packageManager
+        return try {
+            val info = pm.getApplicationInfo(packageName, 0)
+            pm.getApplicationLabel(info).toString()
+        } catch (e: Exception) {
+            packageName
+        }
     }
 
     fun updateWallpaperTheme(theme: WallpaperTheme) {

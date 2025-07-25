@@ -83,7 +83,8 @@ fun GameCarousel(
     showEditButton: Boolean = true,
     settingsExpanded: Boolean = false,
     onLaunch: (GameEntry) -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onEditTitle: (GameEntry) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val baseItemSpacing = 12.dp
@@ -349,7 +350,7 @@ fun GameCarousel(
                     visible = true,
                     iconSize = 24.dp,
                     onPinToggle = {},
-                    onCustomTitle = {},
+                    onCustomTitle = { onEditTitle(games[pagerState.currentPage]) },
                     onCustomIcon = {},
                     onCustomWallpaper = {},
                     onReset = {}

@@ -33,10 +33,12 @@ import com.retrobreeze.ribbonlauncher.NavigationBottomBar
 import com.retrobreeze.ribbonlauncher.SettingsBottomBar
 import com.retrobreeze.ribbonlauncher.SettingsPage
 import com.retrobreeze.ribbonlauncher.EditAppsDialog
+import com.retrobreeze.ribbonlauncher.EditTitleDialog
 import com.retrobreeze.ribbonlauncher.WallpaperThemeDialog
 import com.retrobreeze.ribbonlauncher.ResetConfirmationDialog
 import com.retrobreeze.ribbonlauncher.ui.background.AnimatedBackground
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
+import com.retrobreeze.ribbonlauncher.model.GameEntry
 
 class MainActivity : ComponentActivity() {
     private val launcherViewModel: LauncherViewModel by viewModels()
@@ -75,6 +77,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var settingsMenuExpanded by remember { mutableStateOf(false) }
+    var editTitleGame by remember { mutableStateOf<GameEntry?>(null) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
     LaunchedEffect(pagerState.currentPage, games) {
@@ -112,7 +115,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                         }
                         viewModel.recordLaunch(game)
                     },
-                    onEdit = { showEditDialog = true }
+                    onEdit = { showEditDialog = true },
+                    onEditTitle = { editTitleGame = it }
                 )
             }
             AppDrawerOverlay(
@@ -142,6 +146,15 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     showResetDialog = false
                 },
                 onDismiss = { showResetDialog = false }
+            )
+            EditTitleDialog(
+                show = editTitleGame != null,
+                current = editTitleGame?.displayName ?: "",
+                onConfirm = { title ->
+                    editTitleGame?.let { viewModel.updateGameTitle(it.packageName, title) }
+                    editTitleGame = null
+                },
+                onDismiss = { editTitleGame = null }
             )
             Row(
                 modifier = Modifier
