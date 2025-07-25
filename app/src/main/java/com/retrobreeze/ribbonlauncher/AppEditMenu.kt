@@ -37,14 +37,8 @@ fun AppEditMenu(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = expandHorizontally(
-            expandFrom = Alignment.Start,
-            animationSpec = tween()
-        ) + fadeIn(),
-        exit = shrinkHorizontally(
-            shrinkTowards = Alignment.Start,
-            animationSpec = tween()
-        ) + fadeOut(),
+        enter = expandHorizontally() + fadeIn(),
+        exit = shrinkHorizontally() + fadeOut(),
         modifier = modifier
     ) {
         val spacing = iconSize * 0.33f

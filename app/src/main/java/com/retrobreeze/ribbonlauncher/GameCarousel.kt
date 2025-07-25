@@ -344,7 +344,7 @@ fun GameCarousel(
                 }
             }
             if (settingsExpanded && pagerState.currentPage < games.size) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
                 AppEditMenu(
                     visible = true,
                     iconSize = 24.dp,
