@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -42,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.rememberAsyncImagePainter
@@ -84,7 +86,8 @@ fun GameInfoOverlay(
             AnimatedVisibility(
                 visible = show,
                 enter = slideInVertically(animationSpec = tween(), initialOffsetY = { it }) + fadeIn(),
-                exit = slideOutVertically(animationSpec = tween(), targetOffsetY = { it }) + fadeOut()
+                exit = slideOutVertically(animationSpec = tween(), targetOffsetY = { it }) + fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter)
             ) {
                 Surface(
                     modifier = Modifier
@@ -110,7 +113,11 @@ fun GameInfoOverlay(
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         if (editingTitle) {
                             androidx.compose.material3.TextField(
                                 value = titleText,
@@ -123,7 +130,7 @@ fun GameInfoOverlay(
                                 },
                                 modifier = Modifier.weight(1f),
                                 singleLine = true,
-                                textStyle = MaterialTheme.typography.titleLarge,
+                                textStyle = MaterialTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
                                 trailingIcon = {
                                     IconButton(onClick = { editingTitle = false }) {
                                         Icon(Icons.Default.Check, contentDescription = "Done")
@@ -134,7 +141,10 @@ fun GameInfoOverlay(
                             Text(
                                 text = titleText,
                                 style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { editingTitle = true },
+                                textAlign = TextAlign.Center
                             )
                             IconButton(onClick = { editingTitle = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = "Edit")
@@ -145,7 +155,9 @@ fun GameInfoOverlay(
                     Text(
                         text = game.packageName,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(16.dp))
 
@@ -157,24 +169,23 @@ fun GameInfoOverlay(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Box(modifier = Modifier.size(96.dp)) {
+                            Box(modifier = Modifier.size(120.dp)) {
                                 Image(
                                     painter = rememberAsyncImagePainter(customization?.iconUri ?: game.icon),
                                     contentDescription = null,
                                     modifier = Modifier.fillMaxSize()
                                 )
-                                IconButton(
-                                    onClick = { iconPicker.launch("image/*") },
-                                    modifier = Modifier.align(Alignment.BottomEnd)
-                                ) {
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                IconButton(onClick = { iconPicker.launch("image/*") }) {
                                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                                 }
-                            }
-                            IconButton(
-                                onClick = { onIconChange(null) },
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            ) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                IconButton(onClick = { onIconChange(null) }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                }
                             }
                         }
 
@@ -204,18 +215,17 @@ fun GameInfoOverlay(
                                             .align(Alignment.Center)
                                     )
                                 }
-                                IconButton(
-                                    onClick = { wallpaperPicker.launch("image/*") },
-                                    modifier = Modifier.align(Alignment.BottomEnd)
-                                ) {
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                IconButton(onClick = { wallpaperPicker.launch("image/*") }) {
                                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                                 }
-                            }
-                            IconButton(
-                                onClick = { onWallpaperChange(null) },
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            ) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                IconButton(onClick = { onWallpaperChange(null) }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                }
                             }
                         }
                     }
