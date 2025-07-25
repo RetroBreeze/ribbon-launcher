@@ -105,6 +105,13 @@ fun GameCarousel(
         label = "spacing"
     )
 
+    // Extra padding around the pinned divider
+    val dividerPadding by animateDpAsState(
+        targetValue = itemSpacing * 2,
+        animationSpec = tween(durationMillis = 300),
+        label = "dividerPadding"
+    )
+
     var isResizing by remember { mutableStateOf(false) }
     LaunchedEffect(iconScale) {
         if (iconScale != previousScale) {
@@ -225,11 +232,12 @@ fun GameCarousel(
                 val size = itemSize
 
                 val offset = if (!isEditPage) animatables[games[page].packageName]?.value ?: 0f else 0f
+                val pinnedOffset = if (pinnedCount > 0 && page >= pinnedCount) dividerPadding else 0.dp
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .graphicsLayer { translationX = offset },
+                        .graphicsLayer { translationX = offset + with(density) { pinnedOffset.toPx() } },
                     contentAlignment = Alignment.Center
                 ) {
                     if (isEditPage) {
@@ -257,23 +265,23 @@ fun GameCarousel(
                             Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
                         }
                     } else {
-                        val game = games[page]
-                        val gameModifier = Modifier
-                            .height(size + (size * 0.25f))
-                            .width(size)
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                            }
-                            .clickable {
-                                if (isSelected) {
-                                    onLaunch(game)
-                                } else {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(page)
-                                    }
+                    val game = games[page]
+                    val gameModifier = Modifier
+                        .height(size + (size * 0.25f))
+                        .width(size)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                        .clickable {
+                            if (isSelected) {
+                                onLaunch(game)
+                            } else {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(page)
                                 }
                             }
+                        }
 
                         Box(
                             modifier = gameModifier,
@@ -293,7 +301,7 @@ fun GameCarousel(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
-                                .offset(x = itemSpacing / 2)
+                                .offset(x = itemSpacing / 2 + dividerPadding / 2)
                                 .height(lineHeight)
                                 .width(1.dp)
                                 .background(Color.White.copy(alpha = 0.3f))
