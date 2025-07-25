@@ -5,7 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -29,7 +29,7 @@ fun PinIndicator(
         ),
         modifier = modifier
     ) {
-        Icon(imageVector = Icons.Default.Lightbulb, contentDescription = "Pin")
+        Icon(imageVector = Icons.Default.PushPin, contentDescription = "Pin")
     }
 }
 
