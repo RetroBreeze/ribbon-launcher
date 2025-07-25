@@ -21,11 +21,9 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -158,17 +157,24 @@ fun GameInfoOverlay(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Image(
-                                painter = rememberAsyncImagePainter(customization?.iconUri ?: game.icon),
-                                contentDescription = null,
-                                modifier = Modifier.size(96.dp)
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                OutlinedButton(onClick = { iconPicker.launch("image/*") }) { Text("Edit") }
-                                IconButton(onClick = { onIconChange(null) }) {
-                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                            Box(modifier = Modifier.size(96.dp)) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(customization?.iconUri ?: game.icon),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                IconButton(
+                                    onClick = { iconPicker.launch("image/*") },
+                                    modifier = Modifier.align(Alignment.BottomEnd)
+                                ) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit")
                                 }
+                            }
+                            IconButton(
+                                onClick = { onIconChange(null) },
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            ) {
+                                Icon(Icons.Default.Refresh, contentDescription = "Revert")
                             }
                         }
 
@@ -176,41 +182,57 @@ fun GameInfoOverlay(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            if (customization?.wallpaperUri != null) {
-                                Image(
-                                    painter = rememberAsyncImagePainter(customization.wallpaperUri!!),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(120.dp)
-                                        .clip(RectangleShape)
-                                )
-                            } else {
-                                Icon(
-                                    Icons.Default.Photo,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(120.dp)
-                                )
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                OutlinedButton(onClick = { wallpaperPicker.launch("image/*") }) { Text("Edit") }
-                                IconButton(onClick = { onWallpaperChange(null) }) {
-                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp)
+                            ) {
+                                if (customization?.wallpaperUri != null) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(customization.wallpaperUri!!),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(RectangleShape)
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.Photo,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .align(Alignment.Center)
+                                    )
                                 }
+                                IconButton(
+                                    onClick = { wallpaperPicker.launch("image/*") },
+                                    modifier = Modifier.align(Alignment.BottomEnd)
+                                ) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                                }
+                            }
+                            IconButton(
+                                onClick = { onWallpaperChange(null) },
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            ) {
+                                Icon(Icons.Default.Refresh, contentDescription = "Revert")
                             }
                         }
                     }
 
                     Spacer(Modifier.height(16.dp))
-                    Button(
+                    IconButton(
                         onClick = {
                             val uri = Uri.parse("https://play.google.com/store/apps/details?id=${game.packageName}")
                             context.startActivity(Intent(Intent.ACTION_VIEW, uri))
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Text("Google Play")
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_google_play),
+                            contentDescription = "Google Play",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
