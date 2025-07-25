@@ -7,7 +7,12 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import android.content.Intent
 import android.os.Build
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import com.retrobreeze.ribbonlauncher.model.GameEntry
+import com.retrobreeze.ribbonlauncher.model.AppCustomization
 import com.retrobreeze.ribbonlauncher.ui.background.WallpaperTheme
 
 class LauncherViewModel(app: Application) : AndroidViewModel(app) {
@@ -23,6 +28,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_SHOW_LABELS = "show_labels"
         private const val KEY_WALLPAPER_THEME = "wallpaper_theme"
         private const val KEY_SETTINGS_LOCKED = "settings_locked"
+        private const val KEY_CUSTOM_LABEL_PREFIX = "custom_label_"
+        private const val KEY_CUSTOM_ICON_PREFIX = "custom_icon_"
+        private const val KEY_CUSTOM_WALLPAPER_PREFIX = "custom_wallpaper_"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -60,6 +68,8 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
     var settingsLocked by mutableStateOf(false)
         private set
+
+    private val customizations = mutableStateMapOf<String, AppCustomization>()
 
     init {
         loadPreferences()
@@ -101,14 +111,28 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
 
         prefs.all.forEach { (key, value) ->
-            if (key.startsWith(KEY_LAST_PLAYED_PREFIX)) {
-                val packageName = key.removePrefix(KEY_LAST_PLAYED_PREFIX)
-                val time = when (value) {
-                    is Long -> value
-                    is String -> value.toLongOrNull() ?: return@forEach
-                    else -> return@forEach
+            when {
+                key.startsWith(KEY_LAST_PLAYED_PREFIX) -> {
+                    val packageName = key.removePrefix(KEY_LAST_PLAYED_PREFIX)
+                    val time = when (value) {
+                        is Long -> value
+                        is String -> value.toLongOrNull() ?: return@forEach
+                        else -> return@forEach
+                    }
+                    lastPlayed[packageName] = time
                 }
-                lastPlayed[packageName] = time
+                key.startsWith(KEY_CUSTOM_LABEL_PREFIX) -> {
+                    val pkg = key.removePrefix(KEY_CUSTOM_LABEL_PREFIX)
+                    customizations.getOrPut(pkg) { AppCustomization() }.label = value as? String
+                }
+                key.startsWith(KEY_CUSTOM_ICON_PREFIX) -> {
+                    val pkg = key.removePrefix(KEY_CUSTOM_ICON_PREFIX)
+                    customizations.getOrPut(pkg) { AppCustomization() }.iconUri = value as? String
+                }
+                key.startsWith(KEY_CUSTOM_WALLPAPER_PREFIX) -> {
+                    val pkg = key.removePrefix(KEY_CUSTOM_WALLPAPER_PREFIX)
+                    customizations.getOrPut(pkg) { AppCustomization() }.wallpaperUri = value as? String
+                }
             }
         }
     }
@@ -132,13 +156,15 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
                 isGame && isNotSystemApp
             }
-
-
             .map { appInfo ->
+                val pkg = appInfo.packageName
+                val customization = customizations[pkg]
+                val label = customization?.label ?: pm.getApplicationLabel(appInfo).toString()
+                val icon = customization?.iconUri?.let { loadDrawable(it) } ?: pm.getApplicationIcon(appInfo)
                 GameEntry(
-                    packageName = appInfo.packageName,
-                    displayName = pm.getApplicationLabel(appInfo).toString(),
-                    icon = pm.getApplicationIcon(appInfo)
+                    packageName = pkg,
+                    displayName = label,
+                    icon = icon
                 )
             }
 
@@ -167,10 +193,14 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                 !isGame && isNotSystemApp && isNotSystemUid && launchIntent
             }
             .map { appInfo ->
+                val pkg = appInfo.packageName
+                val customization = customizations[pkg]
+                val label = customization?.label ?: pm.getApplicationLabel(appInfo).toString()
+                val icon = customization?.iconUri?.let { loadDrawable(it) } ?: pm.getApplicationIcon(appInfo)
                 GameEntry(
-                    packageName = appInfo.packageName,
-                    displayName = pm.getApplicationLabel(appInfo).toString(),
-                    icon = pm.getApplicationIcon(appInfo)
+                    packageName = pkg,
+                    displayName = label,
+                    icon = icon
                 )
             }
 
@@ -231,6 +261,44 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().putBoolean(KEY_SETTINGS_LOCKED, settingsLocked).apply()
     }
 
+    fun updateCustomLabel(packageName: String, label: String?) {
+        if (label.isNullOrEmpty()) {
+            customizations[packageName]?.label = null
+            prefs.edit().remove(KEY_CUSTOM_LABEL_PREFIX + packageName).apply()
+        } else {
+            customizations.getOrPut(packageName) { AppCustomization() }.label = label
+            prefs.edit().putString(KEY_CUSTOM_LABEL_PREFIX + packageName, label).apply()
+        }
+        loadInstalledGames()
+        loadInstalledApps()
+    }
+
+    fun updateCustomIcon(packageName: String, uri: String?) {
+        if (uri.isNullOrEmpty()) {
+            customizations[packageName]?.iconUri = null
+            prefs.edit().remove(KEY_CUSTOM_ICON_PREFIX + packageName).apply()
+        } else {
+            customizations.getOrPut(packageName) { AppCustomization() }.iconUri = uri
+            prefs.edit().putString(KEY_CUSTOM_ICON_PREFIX + packageName, uri).apply()
+        }
+        loadInstalledGames()
+        loadInstalledApps()
+    }
+
+    fun updateCustomWallpaper(packageName: String, uri: String?) {
+        if (uri.isNullOrEmpty()) {
+            customizations[packageName]?.wallpaperUri = null
+            prefs.edit().remove(KEY_CUSTOM_WALLPAPER_PREFIX + packageName).apply()
+        } else {
+            customizations.getOrPut(packageName) { AppCustomization() }.wallpaperUri = uri
+            prefs.edit().putString(KEY_CUSTOM_WALLPAPER_PREFIX + packageName, uri).apply()
+        }
+    }
+
+    fun getCustomization(packageName: String?): AppCustomization? {
+        return packageName?.let { customizations[it] }
+    }
+
     fun resetLauncher() {
         prefs.edit().clear().apply()
         lastPlayed.clear()
@@ -284,6 +352,20 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
     fun getInstalledGames(): List<GameEntry> {
         return allGames
+    }
+
+    private fun loadDrawable(uriString: String): Drawable? {
+        val context = getApplication<Application>().applicationContext
+        return try {
+            val uri = Uri.parse(uriString)
+            val input = context.contentResolver.openInputStream(uri)
+            input?.use {
+                val bitmap = BitmapFactory.decodeStream(it)
+                BitmapDrawable(context.resources, bitmap)
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun sortGames() {
