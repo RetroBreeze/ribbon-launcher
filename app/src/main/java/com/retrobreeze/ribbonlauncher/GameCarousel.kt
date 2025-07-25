@@ -166,6 +166,13 @@ fun GameCarousel(
         }
     }
 
+    LaunchedEffect(showAppMenu) {
+        if (showAppMenu) {
+            kotlinx.coroutines.delay(4000)
+            showAppMenu = false
+        }
+    }
+
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val targetPadding = ((screenWidthDp - maxPageWidth) / 2).coerceAtLeast(0.dp)
     val horizontalPadding by animateDpAsState(targetValue = targetPadding, label = "padding")
@@ -266,7 +273,11 @@ fun GameCarousel(
                             .combinedClickable(
                                 onClick = {
                                     if (isSelected) {
-                                        onLaunch(game)
+                                        if (showAppMenu) {
+                                            showAppMenu = false
+                                        } else {
+                                            onLaunch(game)
+                                        }
                                     } else {
                                         coroutineScope.launch {
                                             pagerState.animateScrollToPage(page)
@@ -325,7 +336,7 @@ fun GameCarousel(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp),
+                .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AppEditMenu(
