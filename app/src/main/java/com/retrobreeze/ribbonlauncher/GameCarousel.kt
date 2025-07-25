@@ -302,8 +302,8 @@ fun GameCarousel(
                                 PinIndicator(
                                     visible = showAppMenu,
                                     modifier = Modifier
-                                        .align(Alignment.TopCenter)
-                                        .offset(y = -(size * 0.125f))
+                                        .align(Alignment.BottomCenter)
+                                        .offset(y = -(size * scale * 0.125f))
                                 )
                                 AppEditMenu(
                                     visible = showAppMenu,
