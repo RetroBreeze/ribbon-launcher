@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -77,6 +79,14 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var settingsMenuExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
+    val pickIconLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { selectedUri ->
+            viewModel.selectedGamePackage?.let { pkg ->
+                viewModel.updateCustomIcon(pkg, selectedUri)
+            }
+        }
+    }
+
     LaunchedEffect(pagerState.currentPage, games) {
         val pkg = games.getOrNull(pagerState.currentPage)?.packageName
         viewModel.setSelectedGame(pkg)
@@ -114,7 +124,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                         viewModel.recordLaunch(game)
                     },
                     onEdit = { showEditDialog = true },
-                    onPinToggle = { viewModel.togglePin(it.packageName) }
+                    onPinToggle = { viewModel.togglePin(it.packageName) },
+                    onCustomIcon = { pickIconLauncher.launch("image/*") }
                 )
             }
             AppDrawerOverlay(
