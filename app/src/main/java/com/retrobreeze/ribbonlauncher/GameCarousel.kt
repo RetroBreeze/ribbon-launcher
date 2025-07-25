@@ -11,6 +11,7 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.Density
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ArrowDirection
 import com.retrobreeze.ribbonlauncher.CarouselArrow
+import com.retrobreeze.ribbonlauncher.AppEditMenu
 import kotlinx.coroutines.launch
 
 fun renderTextToBitmap(
@@ -79,6 +81,7 @@ fun GameCarousel(
     iconScale: Float,
     showLabels: Boolean = true,
     showEditButton: Boolean = true,
+    settingsExpanded: Boolean = false,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit
 ) {
@@ -161,6 +164,7 @@ fun GameCarousel(
             alpha = 0f
         }
     }
+
 
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val targetPadding = ((screenWidthDp - maxPageWidth) / 2).coerceAtLeast(0.dp)
@@ -279,6 +283,7 @@ fun GameCarousel(
                                 iconSize = size,
                                 showReflection = !isResizing
                             )
+                            // menu moved below label when settings are open
                         }
                     }
                 }
@@ -315,22 +320,39 @@ fun GameCarousel(
             height = arrowHeight
         )
 
-        labelBitmap?.let {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
-                    .fillMaxWidth()
-                    .height(64.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    bitmap = it,
-                    contentDescription = currentText,
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            labelBitmap?.let {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
-                        .alpha(animatedAlpha)
+                        .height(64.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        bitmap = it,
+                        contentDescription = currentText,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .alpha(animatedAlpha)
+                    )
+                }
+            }
+            if (settingsExpanded && pagerState.currentPage < games.size) {
+                Spacer(Modifier.height(4.dp))
+                AppEditMenu(
+                    visible = true,
+                    iconSize = 24.dp,
+                    onPinToggle = {},
+                    onCustomTitle = {},
+                    onCustomIcon = {},
+                    onCustomWallpaper = {},
+                    onReset = {}
                 )
             }
         }

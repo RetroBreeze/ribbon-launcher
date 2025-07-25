@@ -1,0 +1,108 @@
+package com.retrobreeze.ribbonlauncher
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Photo
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Divider
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun AppEditMenu(
+    visible: Boolean,
+    iconSize: Dp,
+    onPinToggle: () -> Unit,
+    onCustomTitle: () -> Unit,
+    onCustomIcon: () -> Unit,
+    onCustomWallpaper: () -> Unit,
+    onReset: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = expandHorizontally() + fadeIn(),
+        exit = shrinkHorizontally() + fadeOut(),
+        modifier = modifier
+    ) {
+        val spacing = iconSize * 0.33f
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.PushPin,
+                contentDescription = "Pin",
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable { onPinToggle() }
+            )
+            Spacer(Modifier.width(spacing))
+            Divider(
+                modifier = Modifier
+                    .height(iconSize)
+                    .width(1.dp)
+            )
+            Spacer(Modifier.width(spacing))
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Custom Title",
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable { onCustomTitle() }
+            )
+            Spacer(Modifier.width(spacing))
+            Icon(
+                imageVector = Icons.Default.AutoAwesome,
+                contentDescription = "Custom Icon",
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable { onCustomIcon() }
+            )
+            Spacer(Modifier.width(spacing))
+            Icon(
+                imageVector = Icons.Default.Photo,
+                contentDescription = "Custom Wallpaper",
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable { onCustomWallpaper() }
+            )
+            Spacer(Modifier.width(spacing))
+            Icon(
+                imageVector = Icons.Default.Replay,
+                contentDescription = "Reset All",
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable { onReset() }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun AppEditMenuPreview() {
+    AppEditMenu(
+        visible = true,
+        iconSize = 24.dp,
+        onPinToggle = {},
+        onCustomTitle = {},
+        onCustomIcon = {},
+        onCustomWallpaper = {},
+        onReset = {}
+    )
+}
+
