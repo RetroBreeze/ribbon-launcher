@@ -16,7 +16,14 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Photo
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -31,12 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -60,7 +64,8 @@ fun GameInfoOverlay(
 ) {
     if (game == null) return
 
-    var labelState by remember { mutableStateOf(TextFieldValue(customization?.label ?: game.displayName)) }
+    var titleText by remember { mutableStateOf(customization?.label ?: game.displayName) }
+    var editingTitle by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val iconPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -105,56 +110,107 @@ fun GameInfoOverlay(
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                 ) {
-                    Text(text = "${game.displayName}", style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(8.dp))
-                    androidx.compose.material3.TextField(
-                        value = labelState,
-                        onValueChange = { value ->
-                            var text = value.text.replace("\n", "")
-                            if (text.length > MAX_LABEL_LENGTH) text = text.take(MAX_LABEL_LENGTH)
-                            labelState = value.copy(text = text)
-                            onLabelChange(labelState.text.takeIf { it != game.displayName })
-                        },
-                        label = { Text("Custom Name") }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (editingTitle) {
+                            androidx.compose.material3.TextField(
+                                value = titleText,
+                                onValueChange = { value ->
+                                    var text = value
+                                    if (text.length > MAX_LABEL_LENGTH) text = text.take(MAX_LABEL_LENGTH)
+                                    text = text.replace("\n", "")
+                                    titleText = text
+                                    onLabelChange(text.takeIf { it != game.displayName })
+                                },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.titleLarge,
+                                trailingIcon = {
+                                    IconButton(onClick = { editingTitle = false }) {
+                                        Icon(Icons.Default.Check, contentDescription = "Done")
+                                    }
+                                }
+                            )
+                        } else {
+                            Text(
+                                text = titleText,
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(onClick = { editingTitle = true }) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit")
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = game.packageName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedButton(onClick = { iconPicker.launch("image/*") }) { Text("Change Icon") }
-                        Spacer(Modifier.width(8.dp))
-                        OutlinedButton(onClick = { onIconChange(null) }) { Text("Revert") }
+                    Spacer(Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(customization?.iconUri ?: game.icon),
+                                contentDescription = null,
+                                modifier = Modifier.size(96.dp)
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                OutlinedButton(onClick = { iconPicker.launch("image/*") }) { Text("Edit") }
+                                IconButton(onClick = { onIconChange(null) }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                }
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (customization?.wallpaperUri != null) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(customization.wallpaperUri!!),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp)
+                                        .clip(RectangleShape)
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Default.Photo,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(120.dp)
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                OutlinedButton(onClick = { wallpaperPicker.launch("image/*") }) { Text("Edit") }
+                                IconButton(onClick = { onWallpaperChange(null) }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Revert")
+                                }
+                            }
+                        }
                     }
-                    customization?.iconUri?.let { uri ->
-                        Spacer(Modifier.height(8.dp))
-                        Image(
-                            painter = rememberAsyncImagePainter(uri),
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp)
-                        )
+
+                    Spacer(Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            val uri = Uri.parse("https://play.google.com/store/apps/details?id=${game.packageName}")
+                            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Google Play")
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedButton(onClick = { wallpaperPicker.launch("image/*") }) { Text("Change Wallpaper") }
-                        Spacer(Modifier.width(8.dp))
-                        OutlinedButton(onClick = { onWallpaperChange(null) }) { Text("Revert") }
-                    }
-                    customization?.wallpaperUri?.let { uri ->
-                        Spacer(Modifier.height(8.dp))
-                        Image(
-                            painter = rememberAsyncImagePainter(uri),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .clip(RectangleShape)
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Text("Package: ${game.packageName}")
-                    Spacer(Modifier.height(8.dp))
-                    Button(onClick = {
-                        val uri = Uri.parse("https://play.google.com/store/apps/details?id=${game.packageName}")
-                        context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                    }) { Text("Play Store") }
                 }
             }
         }
