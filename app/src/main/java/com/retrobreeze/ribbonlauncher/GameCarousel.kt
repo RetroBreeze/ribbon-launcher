@@ -45,7 +45,6 @@ import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ArrowDirection
 import com.retrobreeze.ribbonlauncher.CarouselArrow
 import com.retrobreeze.ribbonlauncher.AppEditMenu
-import com.retrobreeze.ribbonlauncher.PinIndicator
 import kotlinx.coroutines.launch
 
 fun renderTextToBitmap(
@@ -299,14 +298,9 @@ fun GameCarousel(
                                 showReflection = !isResizing
                             )
                             if (isSelected) {
-                                PinIndicator(
-                                    visible = showAppMenu,
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .offset(y = -(size * scale * 0.125f))
-                                )
                                 AppEditMenu(
                                     visible = showAppMenu,
+                                    onPinToggle = {},
                                     onCustomTitle = {},
                                     onCustomIcon = {},
                                     onCustomWallpaper = {},
