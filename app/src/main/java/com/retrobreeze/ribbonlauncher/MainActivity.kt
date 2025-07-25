@@ -31,7 +31,7 @@ import com.retrobreeze.ribbonlauncher.RibbonTitle
 import com.retrobreeze.ribbonlauncher.StatusTopBar
 import com.retrobreeze.ribbonlauncher.NavigationBottomBar
 import com.retrobreeze.ribbonlauncher.SettingsBottomBar
-import com.retrobreeze.ribbonlauncher.SettingsOverlay
+import com.retrobreeze.ribbonlauncher.SettingsPage
 import com.retrobreeze.ribbonlauncher.EditAppsDialog
 import com.retrobreeze.ribbonlauncher.WallpaperThemeDialog
 import com.retrobreeze.ribbonlauncher.ResetConfirmationDialog
@@ -70,7 +70,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     val apps = viewModel.apps
     val context = LocalContext.current
     var showDrawer by remember { mutableStateOf(false) }
-    var showSettingsOverlay by remember { mutableStateOf(false) }
+    var showSettingsPage by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
@@ -119,9 +119,9 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 onDismiss = { showDrawer = false },
                 modifier = Modifier.align(Alignment.Center)
             )
-            SettingsOverlay(
-                show = showSettingsOverlay,
-                onDismiss = { showSettingsOverlay = false },
+            SettingsPage(
+                show = showSettingsPage,
+                onDismiss = { showSettingsPage = false },
                 modifier = Modifier.align(Alignment.Center)
             )
             EditAppsDialog(
@@ -182,7 +182,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 24.dp, bottom = 24.dp),
-                onClick = { showSettingsOverlay = true }
+                onClick = { showSettingsPage = true }
             )
             NavigationBottomBar(
                 modifier = Modifier
