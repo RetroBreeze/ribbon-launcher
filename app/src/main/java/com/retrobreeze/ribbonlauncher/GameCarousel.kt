@@ -85,7 +85,8 @@ fun GameCarousel(
     pinnedCount: Int = 0,
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit,
-    onPinToggle: (GameEntry) -> Unit
+    onPinToggle: (GameEntry) -> Unit,
+    onCustomWallpaper: (GameEntry) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val baseItemSpacing = 12.dp
@@ -372,7 +373,7 @@ fun GameCarousel(
                     onPinToggle = { onPinToggle(games[pagerState.currentPage]) },
                     onCustomTitle = {},
                     onCustomIcon = {},
-                    onCustomWallpaper = {},
+                    onCustomWallpaper = { onCustomWallpaper(games[pagerState.currentPage]) },
                     onReset = {}
                 )
             }

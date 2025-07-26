@@ -20,10 +20,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_ENABLED_PACKAGES = "enabled_packages"
         private const val KEY_RIBBON_TITLE = "ribbon_title"
         private const val KEY_ICON_SIZE = "icon_size"
-        private const val KEY_SHOW_LABELS = "show_labels"
-        private const val KEY_WALLPAPER_THEME = "wallpaper_theme"
-        private const val KEY_SETTINGS_LOCKED = "settings_locked"
-        private const val KEY_PINNED_PACKAGES = "pinned_packages"
+    private const val KEY_SHOW_LABELS = "show_labels"
+    private const val KEY_WALLPAPER_THEME = "wallpaper_theme"
+    private const val KEY_APP_WALLPAPER_PREFIX = "app_wallpaper_"
+    private const val KEY_SETTINGS_LOCKED = "settings_locked"
+    private const val KEY_PINNED_PACKAGES = "pinned_packages"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -57,6 +58,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     var wallpaperTheme by mutableStateOf(WallpaperTheme.XMB_CLASSIC_BLUE)
+        private set
+
+    var appWallpaperThemes = mutableStateMapOf<String, WallpaperTheme>()
         private set
 
     var settingsLocked by mutableStateOf(false)
@@ -104,6 +108,17 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         pinnedPackages = prefs.getString(KEY_PINNED_PACKAGES, "")
             ?.takeIf { it.isNotEmpty() }
             ?.split(',') ?: emptyList()
+
+        prefs.all.forEach { (key, value) ->
+            if (key.startsWith(KEY_APP_WALLPAPER_PREFIX)) {
+                val packageName = key.removePrefix(KEY_APP_WALLPAPER_PREFIX)
+                val themeName = value as? String ?: return@forEach
+                try {
+                    appWallpaperThemes[packageName] = WallpaperTheme.valueOf(themeName)
+                } catch (_: IllegalArgumentException) {
+                }
+            }
+        }
 
         enabledPackages = if (prefs.contains(KEY_ENABLED_PACKAGES)) {
             prefs.getStringSet(KEY_ENABLED_PACKAGES, emptySet())?.toSet() ?: emptySet()
@@ -246,6 +261,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().clear().apply()
         lastPlayed.clear()
         pinnedPackages = emptyList()
+        appWallpaperThemes.clear()
         loadPreferences()
         sortGames()
     }
@@ -296,6 +312,15 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
         prefs.edit().putString(KEY_PINNED_PACKAGES, pinnedPackages.joinToString(",")).apply()
         sortGames()
+    }
+
+    fun updateAppWallpaper(packageName: String, theme: WallpaperTheme) {
+        appWallpaperThemes[packageName] = theme
+        prefs.edit().putString(KEY_APP_WALLPAPER_PREFIX + packageName, theme.name).apply()
+    }
+
+    fun getAppWallpaper(packageName: String?): WallpaperTheme? {
+        return packageName?.let { appWallpaperThemes[it] }
     }
 
     fun getAllInstalledApps(): List<GameEntry> {

@@ -73,6 +73,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var showSettingsPage by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
+    var showAppWallpaperDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var settingsMenuExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
@@ -82,10 +83,12 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
         viewModel.setSelectedGame(pkg)
     }
 
+    val activeTheme = viewModel.getAppWallpaper(viewModel.selectedGamePackage) ?: viewModel.wallpaperTheme
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedBackground(
-                theme = viewModel.wallpaperTheme,
+                theme = activeTheme,
                 modifier = Modifier.fillMaxSize()
             )
             Box(
@@ -114,7 +117,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                         viewModel.recordLaunch(game)
                     },
                     onEdit = { showEditDialog = true },
-                    onPinToggle = { viewModel.togglePin(it.packageName) }
+                    onPinToggle = { viewModel.togglePin(it.packageName) },
+                    onCustomWallpaper = { showAppWallpaperDialog = true }
                 )
             }
             AppDrawerOverlay(
@@ -136,6 +140,14 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 current = viewModel.wallpaperTheme,
                 onSelect = { viewModel.updateWallpaperTheme(it) },
                 onDismiss = { showWallpaperDialog = false }
+            )
+            WallpaperThemeDialog(
+                show = showAppWallpaperDialog,
+                current = viewModel.getAppWallpaper(viewModel.selectedGamePackage) ?: viewModel.wallpaperTheme,
+                onSelect = { theme ->
+                    viewModel.selectedGamePackage?.let { viewModel.updateAppWallpaper(it, theme) }
+                },
+                onDismiss = { showAppWallpaperDialog = false }
             )
             ResetConfirmationDialog(
                 show = showResetDialog,
