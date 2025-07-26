@@ -125,7 +125,10 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     },
                     onEdit = { showEditDialog = true },
                     onPinToggle = { viewModel.togglePin(it.packageName) },
-                    onCustomIcon = { pickIconLauncher.launch(arrayOf("image/*")) }
+                    onCustomIcon = { pickIconLauncher.launch(arrayOf("image/*")) },
+                    onTitleChange = { game, title ->
+                        viewModel.updateCustomTitle(game.packageName, title)
+                    }
                 )
             }
             AppDrawerOverlay(

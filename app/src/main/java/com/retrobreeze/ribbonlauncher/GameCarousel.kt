@@ -41,11 +41,24 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.Density
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
 import com.retrobreeze.ribbonlauncher.model.GameEntry
 import com.retrobreeze.ribbonlauncher.ArrowDirection
 import com.retrobreeze.ribbonlauncher.CarouselArrow
 import com.retrobreeze.ribbonlauncher.AppEditMenu
 import kotlinx.coroutines.launch
+
+private const val MAX_GAME_TITLE_LENGTH = 30
 
 fun renderTextToBitmap(
     text: String,
@@ -86,7 +99,8 @@ fun GameCarousel(
     onLaunch: (GameEntry) -> Unit,
     onEdit: () -> Unit,
     onPinToggle: (GameEntry) -> Unit,
-    onCustomIcon: (GameEntry) -> Unit
+    onCustomIcon: (GameEntry) -> Unit,
+    onTitleChange: (GameEntry, String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val baseItemSpacing = 12.dp
@@ -141,6 +155,12 @@ fun GameCarousel(
     }
     var labelBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var alpha by remember { mutableStateOf(if (showLabels) 1f else 0f) }
+    var editingTitle by remember { mutableStateOf(false) }
+    var localTitle by remember { mutableStateOf(TextFieldValue("")) }
+    val focusRequester = remember { FocusRequester() }
+    var hadFocus by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val animatedAlpha by animateFloatAsState(
         targetValue = alpha,
@@ -148,6 +168,9 @@ fun GameCarousel(
     )
 
     LaunchedEffect(pagerState.currentPage) {
+        if (editingTitle) {
+            editingTitle = false
+        }
         val newText = if (showEditButton && pagerState.currentPage == games.size) {
             "Edit"
         } else {
@@ -348,21 +371,57 @@ fun GameCarousel(
                 .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            labelBitmap?.let {
-                Box(
+            if (editingTitle) {
+                BasicTextField(
+                    value = localTitle,
+                    onValueChange = { value ->
+                        var text = value.text.replace("\n", "")
+                        if (text.length > MAX_GAME_TITLE_LENGTH) text = text.take(MAX_GAME_TITLE_LENGTH)
+                        localTitle = value.copy(text = text)
+                    },
+                    textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                        editingTitle = false
+                        onTitleChange(games[pagerState.currentPage], localTitle.text)
+                    }),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        bitmap = it,
-                        contentDescription = currentText,
+                        .height(48.dp)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { state ->
+                            if (state.isFocused) {
+                                hadFocus = true
+                                localTitle = localTitle.copy(selection = TextRange(0, localTitle.text.length))
+                            } else if (hadFocus) {
+                                hadFocus = false
+                                editingTitle = false
+                                onTitleChange(games[pagerState.currentPage], localTitle.text)
+                            }
+                        }
+                )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+            } else {
+                labelBitmap?.let {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
-                            .alpha(animatedAlpha)
-                    )
+                            .height(64.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            bitmap = it,
+                            contentDescription = currentText,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .alpha(animatedAlpha)
+                        )
+                    }
                 }
             }
             if (settingsExpanded && pagerState.currentPage < games.size) {
@@ -371,7 +430,11 @@ fun GameCarousel(
                     visible = true,
                     iconSize = 24.dp,
                     onPinToggle = { onPinToggle(games[pagerState.currentPage]) },
-                    onCustomTitle = {},
+                    onCustomTitle = {
+                        val title = games[pagerState.currentPage].displayName
+                        localTitle = TextFieldValue(title)
+                        editingTitle = true
+                    },
                     onCustomIcon = { onCustomIcon(games[pagerState.currentPage]) },
                     onCustomWallpaper = {},
                     onReset = {}
