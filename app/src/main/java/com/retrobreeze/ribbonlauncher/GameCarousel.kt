@@ -100,6 +100,7 @@ fun GameCarousel(
     onEdit: () -> Unit,
     onPinToggle: (GameEntry) -> Unit,
     onCustomIcon: (GameEntry) -> Unit,
+    onCustomWallpaper: (GameEntry) -> Unit,
     onTitleChange: (GameEntry, String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -436,7 +437,7 @@ fun GameCarousel(
                         editingTitle = true
                     },
                     onCustomIcon = { onCustomIcon(games[pagerState.currentPage]) },
-                    onCustomWallpaper = {},
+                    onCustomWallpaper = { onCustomWallpaper(games[pagerState.currentPage]) },
                     onReset = {}
                 )
             }
