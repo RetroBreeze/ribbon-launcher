@@ -395,6 +395,35 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    private fun getDefaultIcon(pkg: String): Drawable {
+        val context = getApplication<Application>().applicationContext
+        return try {
+            context.packageManager.getApplicationIcon(pkg)
+        } catch (_: Exception) {
+            context.getDrawable(android.R.drawable.sym_def_app_icon)!!
+        }
+    }
+
+    fun resetAppCustomizations(packageName: String) {
+        customIcons.remove(packageName)
+        customTitles.remove(packageName)
+        customWallpapers.remove(packageName)
+        prefs.edit()
+            .remove(KEY_CUSTOM_ICON_PREFIX + packageName)
+            .remove(KEY_CUSTOM_TITLE_PREFIX + packageName)
+            .remove(KEY_CUSTOM_WALLPAPER_PREFIX + packageName)
+            .apply()
+        val defaultLabel = getDefaultLabel(packageName)
+        val defaultIcon = getDefaultIcon(packageName)
+        allGames = allGames.map {
+            if (it.packageName == packageName) it.copy(displayName = defaultLabel, icon = defaultIcon) else it
+        }
+        apps = apps.map {
+            if (it.packageName == packageName) it.copy(displayName = defaultLabel, icon = defaultIcon) else it
+        }
+        sortGames()
+    }
+
     private fun applyCustomIcons() {
         if (customIcons.isEmpty()) return
         allGames = allGames.map { entry ->

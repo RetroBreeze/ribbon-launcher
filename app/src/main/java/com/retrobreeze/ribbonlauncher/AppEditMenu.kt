@@ -81,6 +81,12 @@ fun AppEditMenu(
                     .clickable { onCustomWallpaper() }
             )
             Spacer(Modifier.width(spacing))
+            Divider(
+                modifier = Modifier
+                    .height(iconSize)
+                    .width(1.dp)
+            )
+            Spacer(Modifier.width(spacing))
             Icon(
                 imageVector = Icons.Default.Replay,
                 contentDescription = "Reset All",

@@ -37,8 +37,10 @@ import com.retrobreeze.ribbonlauncher.SettingsPage
 import com.retrobreeze.ribbonlauncher.EditAppsDialog
 import com.retrobreeze.ribbonlauncher.WallpaperThemeDialog
 import com.retrobreeze.ribbonlauncher.ResetConfirmationDialog
+import com.retrobreeze.ribbonlauncher.ResetAppDialog
 import com.retrobreeze.ribbonlauncher.ui.background.Wallpaper
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
+import com.retrobreeze.ribbonlauncher.model.GameEntry
 
 class MainActivity : ComponentActivity() {
     private val launcherViewModel: LauncherViewModel by viewModels()
@@ -76,6 +78,8 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
+    var showAppResetDialog by remember { mutableStateOf(false) }
+    var resetTarget by remember { mutableStateOf<GameEntry?>(null) }
     var settingsMenuExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = 0) { games.size + if (!viewModel.settingsLocked) 1 else 0 }
 
@@ -138,6 +142,10 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     onCustomWallpaper = { pickWallpaperLauncher.launch(arrayOf("image/*")) },
                     onTitleChange = { game, title ->
                         viewModel.updateCustomTitle(game.packageName, title)
+                    },
+                    onReset = { game ->
+                        resetTarget = game
+                        showAppResetDialog = true
                     }
                 )
             }
@@ -160,6 +168,15 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                 current = viewModel.wallpaperTheme,
                 onSelect = { viewModel.updateWallpaperTheme(it) },
                 onDismiss = { showWallpaperDialog = false }
+            )
+            ResetAppDialog(
+                show = showAppResetDialog,
+                appName = resetTarget?.displayName ?: "this app",
+                onConfirm = {
+                    resetTarget?.packageName?.let { viewModel.resetAppCustomizations(it) }
+                    showAppResetDialog = false
+                },
+                onDismiss = { showAppResetDialog = false }
             )
             ResetConfirmationDialog(
                 show = showResetDialog,
