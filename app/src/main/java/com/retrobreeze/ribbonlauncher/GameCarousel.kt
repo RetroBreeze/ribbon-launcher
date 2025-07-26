@@ -426,22 +426,21 @@ fun GameCarousel(
                     }
                 }
             }
-            if (settingsExpanded && pagerState.currentPage < games.size) {
-                Spacer(Modifier.height(8.dp))
-                AppEditMenu(
-                    visible = true,
-                    iconSize = 32.dp,
-                    onPinToggle = { onPinToggle(games[pagerState.currentPage]) },
-                    onCustomTitle = {
-                        val title = games[pagerState.currentPage].displayName
-                        localTitle = TextFieldValue(title)
-                        editingTitle = true
-                    },
-                    onCustomIcon = { onCustomIcon(games[pagerState.currentPage]) },
-                    onCustomWallpaper = { onCustomWallpaper(games[pagerState.currentPage]) },
-                    onReset = { onReset(games[pagerState.currentPage]) }
-                )
-            }
+            val showEditMenu = settingsExpanded && showEditButton && pagerState.currentPage < games.size
+            Spacer(Modifier.height(if (showEditMenu) 8.dp else 0.dp))
+            AppEditMenu(
+                visible = showEditMenu,
+                iconSize = 32.dp,
+                onPinToggle = { onPinToggle(games[pagerState.currentPage]) },
+                onCustomTitle = {
+                    val title = games[pagerState.currentPage].displayName
+                    localTitle = TextFieldValue(title)
+                    editingTitle = true
+                },
+                onCustomIcon = { onCustomIcon(games[pagerState.currentPage]) },
+                onCustomWallpaper = { onCustomWallpaper(games[pagerState.currentPage]) },
+                onReset = { onReset(games[pagerState.currentPage]) }
+            )
         }
     }
 }
