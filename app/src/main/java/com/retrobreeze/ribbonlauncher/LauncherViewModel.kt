@@ -27,6 +27,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_SETTINGS_LOCKED = "settings_locked"
         private const val KEY_PINNED_PACKAGES = "pinned_packages"
         private const val KEY_CUSTOM_ICON_PREFIX = "custom_icon_"
+        private const val KEY_CUSTOM_TITLE_PREFIX = "custom_title_"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -69,6 +70,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     private val customIcons = mutableMapOf<String, Drawable>()
+    private val customTitles = mutableStateMapOf<String, String>()
 
     val visiblePinnedCount: Int
         get() = pinnedPackages.count { enabledPackages.contains(it) }
@@ -133,6 +135,11 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     val uriString = value as? String ?: return@forEach
                     loadCustomIcon(context, packageName, uriString)
                 }
+                key.startsWith(KEY_CUSTOM_TITLE_PREFIX) -> {
+                    val packageName = key.removePrefix(KEY_CUSTOM_TITLE_PREFIX)
+                    val title = value as? String ?: return@forEach
+                    customTitles[packageName] = title
+                }
             }
         }
     }
@@ -166,6 +173,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                 )
             }
 
+        applyCustomTitles()
         applyCustomIcons()
         sortGames()
     }
@@ -199,6 +207,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                 )
             }
 
+        applyCustomTitles()
         applyCustomIcons()
         sortGames()
     }
@@ -261,6 +270,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().clear().apply()
         lastPlayed.clear()
         customIcons.clear()
+        customTitles.clear()
         pinnedPackages = emptyList()
         loadPreferences()
         sortGames()
@@ -333,6 +343,36 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun updateCustomTitle(packageName: String, title: String) {
+        val trimmed = title.trim()
+        if (trimmed.isEmpty()) {
+            customTitles.remove(packageName)
+            prefs.edit().remove(KEY_CUSTOM_TITLE_PREFIX + packageName).apply()
+            reloadTitles(packageName)
+        } else {
+            customTitles[packageName] = trimmed
+            prefs.edit().putString(KEY_CUSTOM_TITLE_PREFIX + packageName, trimmed).apply()
+            reloadTitles(packageName)
+        }
+        sortGames()
+    }
+
+    private fun reloadTitles(packageName: String) {
+        allGames = allGames.map { if (it.packageName == packageName) it.copy(displayName = customTitles[packageName] ?: getDefaultLabel(it.packageName)) else it }
+        apps = apps.map { if (it.packageName == packageName) it.copy(displayName = customTitles[packageName] ?: getDefaultLabel(it.packageName)) else it }
+    }
+
+    private fun getDefaultLabel(pkg: String): String {
+        val context = getApplication<Application>().applicationContext
+        return try {
+            val pm = context.packageManager
+            val appInfo = pm.getApplicationInfo(pkg, 0)
+            pm.getApplicationLabel(appInfo).toString()
+        } catch (_: Exception) {
+            pkg
+        }
+    }
+
     private fun applyCustomIcons() {
         if (customIcons.isEmpty()) return
         allGames = allGames.map { entry ->
@@ -340,6 +380,16 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
         apps = apps.map { entry ->
             customIcons[entry.packageName]?.let { entry.copy(icon = it) } ?: entry
+        }
+    }
+
+    private fun applyCustomTitles() {
+        if (customTitles.isEmpty()) return
+        allGames = allGames.map { entry ->
+            customTitles[entry.packageName]?.let { entry.copy(displayName = it) } ?: entry
+        }
+        apps = apps.map { entry ->
+            customTitles[entry.packageName]?.let { entry.copy(displayName = it) } ?: entry
         }
     }
 
