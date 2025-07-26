@@ -28,6 +28,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         private const val KEY_PINNED_PACKAGES = "pinned_packages"
         private const val KEY_CUSTOM_ICON_PREFIX = "custom_icon_"
         private const val KEY_CUSTOM_TITLE_PREFIX = "custom_title_"
+        private const val KEY_CUSTOM_WALLPAPER_PREFIX = "custom_wallpaper_"
     }
 
     private val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -71,6 +72,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
     private val customIcons = mutableMapOf<String, Drawable>()
     private val customTitles = mutableStateMapOf<String, String>()
+    private val customWallpapers = mutableStateMapOf<String, Uri>()
 
     val visiblePinnedCount: Int
         get() = pinnedPackages.count { enabledPackages.contains(it) }
@@ -139,6 +141,12 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
                     val packageName = key.removePrefix(KEY_CUSTOM_TITLE_PREFIX)
                     val title = value as? String ?: return@forEach
                     customTitles[packageName] = title
+                }
+                key.startsWith(KEY_CUSTOM_WALLPAPER_PREFIX) -> {
+                    val packageName = key.removePrefix(KEY_CUSTOM_WALLPAPER_PREFIX)
+                    val uriString = value as? String ?: return@forEach
+                    val uri = Uri.parse(uriString)
+                    customWallpapers[packageName] = uri
                 }
             }
         }
@@ -271,6 +279,7 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         lastPlayed.clear()
         customIcons.clear()
         customTitles.clear()
+        customWallpapers.clear()
         pinnedPackages = emptyList()
         loadPreferences()
         sortGames()
@@ -343,6 +352,19 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun updateCustomWallpaper(packageName: String, uri: Uri) {
+        val context = getApplication<Application>().applicationContext
+        try {
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            customWallpapers[packageName] = uri
+            prefs.edit().putString(KEY_CUSTOM_WALLPAPER_PREFIX + packageName, uri.toString()).apply()
+        } catch (_: Exception) {
+        }
+    }
+
     fun updateCustomTitle(packageName: String, title: String) {
         val trimmed = title.trim()
         if (trimmed.isEmpty()) {
@@ -411,6 +433,9 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         } catch (_: Exception) {
         }
     }
+
+    fun getCustomWallpaper(packageName: String?): Uri? =
+        packageName?.let { customWallpapers[it] }
 
     private fun sortGames() {
         if (!prefs.contains(KEY_ENABLED_PACKAGES) && enabledPackages.isEmpty()) {

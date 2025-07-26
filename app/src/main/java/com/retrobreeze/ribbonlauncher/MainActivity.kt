@@ -37,7 +37,7 @@ import com.retrobreeze.ribbonlauncher.SettingsPage
 import com.retrobreeze.ribbonlauncher.EditAppsDialog
 import com.retrobreeze.ribbonlauncher.WallpaperThemeDialog
 import com.retrobreeze.ribbonlauncher.ResetConfirmationDialog
-import com.retrobreeze.ribbonlauncher.ui.background.AnimatedBackground
+import com.retrobreeze.ribbonlauncher.ui.background.Wallpaper
 import com.retrobreeze.ribbonlauncher.ui.theme.RibbonLauncherTheme
 
 class MainActivity : ComponentActivity() {
@@ -87,6 +87,14 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
         }
     }
 
+    val pickWallpaperLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { selectedUri ->
+            viewModel.selectedGamePackage?.let { pkg ->
+                viewModel.updateCustomWallpaper(pkg, selectedUri)
+            }
+        }
+    }
+
     LaunchedEffect(pagerState.currentPage, games) {
         val pkg = games.getOrNull(pagerState.currentPage)?.packageName
         viewModel.setSelectedGame(pkg)
@@ -94,8 +102,9 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedBackground(
+            Wallpaper(
                 theme = viewModel.wallpaperTheme,
+                imageUri = viewModel.getCustomWallpaper(viewModel.selectedGamePackage),
                 modifier = Modifier.fillMaxSize()
             )
             Box(
@@ -126,6 +135,7 @@ fun LauncherScreen(viewModel: LauncherViewModel = viewModel()) {
                     onEdit = { showEditDialog = true },
                     onPinToggle = { viewModel.togglePin(it.packageName) },
                     onCustomIcon = { pickIconLauncher.launch(arrayOf("image/*")) },
+                    onCustomWallpaper = { pickWallpaperLauncher.launch(arrayOf("image/*")) },
                     onTitleChange = { game, title ->
                         viewModel.updateCustomTitle(game.packageName, title)
                     }
