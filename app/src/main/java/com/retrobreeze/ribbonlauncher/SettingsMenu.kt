@@ -69,7 +69,7 @@ fun SettingsMenu(
     val divider: @Composable () -> Unit = {
         Box(
             Modifier
-                .height(24.dp)
+                .height(32.dp)
                 .width(1.dp)
                 .background(Color.White.copy(alpha = 0.3f))
         )
@@ -92,8 +92,8 @@ fun SettingsMenu(
                 Spacer(Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
-                        .height(24.dp)
-                        .widthIn(min = 24.dp)
+                        .height(32.dp)
+                        .widthIn(min = 32.dp)
                         .alpha(if (locked) 0.3f else 1f)
                         .clickable(enabled = !locked) { onSortClick() },
                     contentAlignment = Alignment.Center
@@ -112,7 +112,7 @@ fun SettingsMenu(
                             Icon(
                                 imageVector = Icons.Default.Sort,
                                 contentDescription = "Sort",
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                     }
@@ -122,7 +122,7 @@ fun SettingsMenu(
                     imageVector = Icons.Default.ZoomIn,
                     contentDescription = "Icon Size",
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(32.dp)
                         .alpha(if (locked) 0.3f else 1f)
                         .clickable(enabled = !locked) { onIconSizeClick() }
                 )
@@ -131,7 +131,7 @@ fun SettingsMenu(
                     imageVector = if (showLabels) Icons.Default.TextFields else Icons.Default.VisibilityOff,
                     contentDescription = "Toggle Labels",
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(32.dp)
                         .alpha(if (locked) 0.3f else 1f)
                         .clickable(enabled = !locked) { onToggleLabels() }
                 )
@@ -140,7 +140,7 @@ fun SettingsMenu(
                     imageVector = Icons.Default.Photo,
                     contentDescription = "Wallpaper",
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(32.dp)
                         .alpha(if (locked) 0.3f else 1f)
                         .clickable(enabled = !locked) { onWallpaperClick() }
                 )
@@ -151,7 +151,7 @@ fun SettingsMenu(
                     imageVector = if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     contentDescription = "Lock",
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(32.dp)
                         .clickable {
                             onLockToggle()
                             if (!locked) onExpandedChange(false)
@@ -164,7 +164,7 @@ fun SettingsMenu(
                     imageVector = Icons.Default.Restore,
                     contentDescription = "Reset",
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(32.dp)
                         .alpha(if (locked) 0.3f else 1f)
                         .clickable(enabled = !locked) { onResetClick() }
                 )

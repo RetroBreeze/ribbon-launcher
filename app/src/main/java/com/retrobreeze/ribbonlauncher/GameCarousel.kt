@@ -427,10 +427,10 @@ fun GameCarousel(
                 }
             }
             if (settingsExpanded && pagerState.currentPage < games.size) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(8.dp))
                 AppEditMenu(
                     visible = true,
-                    iconSize = 24.dp,
+                    iconSize = 32.dp,
                     onPinToggle = { onPinToggle(games[pagerState.currentPage]) },
                     onCustomTitle = {
                         val title = games[pagerState.currentPage].displayName

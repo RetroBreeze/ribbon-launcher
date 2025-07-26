@@ -103,7 +103,7 @@ fun AppEditMenu(
 private fun AppEditMenuPreview() {
     AppEditMenu(
         visible = true,
-        iconSize = 24.dp,
+        iconSize = 32.dp,
         onPinToggle = {},
         onCustomTitle = {},
         onCustomIcon = {},
