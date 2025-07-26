@@ -2,8 +2,8 @@ package com.retrobreeze.ribbonlauncher
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
@@ -37,8 +37,8 @@ fun AppEditMenu(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
-        exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
+        enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+        exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
         modifier = modifier
     ) {
         val spacing = iconSize * 0.33f
@@ -104,6 +104,7 @@ private fun AppEditMenuPreview() {
     AppEditMenu(
         visible = true,
         iconSize = 32.dp,
+        modifier = Modifier.padding(top = 8.dp),
         onPinToggle = {},
         onCustomTitle = {},
         onCustomIcon = {},
