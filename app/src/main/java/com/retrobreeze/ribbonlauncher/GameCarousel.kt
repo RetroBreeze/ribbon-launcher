@@ -158,7 +158,7 @@ fun GameCarousel(
         label = "BitmapFade"
     )
 
-    LaunchedEffect(pagerState.currentPage) {
+    LaunchedEffect(pagerState.currentPage, games) {
         val newText = if (showEditButton && pagerState.currentPage == games.size) {
             "Edit"
         } else {
