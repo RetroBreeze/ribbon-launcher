@@ -37,8 +37,8 @@ fun AppEditMenu(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = expandHorizontally() + fadeIn(),
-        exit = shrinkHorizontally() + fadeOut(),
+        enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+        exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
         modifier = modifier
     ) {
         val spacing = iconSize * 0.33f
@@ -104,6 +104,7 @@ private fun AppEditMenuPreview() {
     AppEditMenu(
         visible = true,
         iconSize = 32.dp,
+        modifier = Modifier.padding(top = 8.dp),
         onPinToggle = {},
         onCustomTitle = {},
         onCustomIcon = {},
