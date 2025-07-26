@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.PushPin
@@ -66,7 +66,7 @@ fun AppEditMenu(
             )
             Spacer(Modifier.width(spacing))
             Icon(
-                imageVector = Icons.Default.AutoAwesome,
+                imageVector = Icons.Default.CheckBoxOutlineBlank,
                 contentDescription = "Custom Icon",
                 modifier = Modifier
                     .size(iconSize)
